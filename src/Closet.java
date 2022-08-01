@@ -81,10 +81,10 @@ public class Closet {
     
     public static void handleLoginButtonPressed(){
 
-        String uri = uriTextField.getText(); 
-        String username = uriTextField.getText(); 
-        String password = uriTextField.getText();
-        String driver_cname = uriTextField.getText(); 
+        String uri =  uriTextField.getText(); 
+        String username = usernameTextField.getText(); 
+        String password = passwordTextField.getText();
+        String driver_cname = driverTextField.getText(); 
 
         Database.getConnection(uri, username, password, driver_cname); 
     }
