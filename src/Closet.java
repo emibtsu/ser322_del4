@@ -87,6 +87,9 @@ public class Closet {
         String driver_cname = driverTextField.getText(); 
 
         Database.getConnection(uri, username, password, driver_cname); 
+        
+        if(connection != null)
+            JOptionPane.showMessageDialog(null, "connected successfuly");
     }
 
 }
