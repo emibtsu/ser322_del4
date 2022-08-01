@@ -1,0 +1,2 @@
+module Closet {
+}
