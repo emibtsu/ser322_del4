@@ -78,7 +78,6 @@ public class Closet {
         frame.setVisible(true); 
     }
 
-    private static void 
     
     public static void handleLoginButtonPressed(){
 
