@@ -5,24 +5,66 @@ import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.ArrayList;
 
 class Database{
 
+	private Connection connection; 
+	
+	public Database(String uri, String username, String password, String driver_cname) {
+		this.connection = establishConnection(uri, username, password, driver_cname); 
+	}
+	
+	// geters and setters 
+	public Connection getConnection(){
+		return this.connection; 
+	}
    
-    // select every SHIRT by OWNER and list owner name, brand name, material, and type of shirt
-
-    final static String SELECT_ALL_SHIRT = "SELECT OFirstName, OMiddleName, OLastName, Brand.BrandName, Type, CLOTHING.Material"
-                                            + "FROM OWNER"
-                                            + "JOIN OWNS ON OWNER.OID = OWNS.OID"
-                                            + "JOIN ITEM ON ITEM.SlotNumber = OWNS.SlotNumber"
-                                                    + "AND ITEM.ShelfNumber = OWNS.ShelfNumber"
-                                            + "JOIN CLOTHING ON CLOTHING.ClothingID = ITEM.ClothingID"
-                                            + "JOIN BRAND ON BRAND.BrandName = CLOTHING.BrandName"
-                                            + "JOIN SHIRT ON SHIRT.ClothingID = CLOTHING.ClothingID";
-
+    // queries
+	final static String SELECT_SHIRTS_BY_OWNER_BRAND = "SELECT ITEM.SlotNumber, ITEM.ShelfNumber, OFirstName, OMiddleName, OLastName, Brand.BrandName, Type, CLOTHING.Material\n"
+		
+			+ "FROM OWNER \n"
+			+ "JOIN OWNS ON OWNER.OID = OWNS.OID\n"
+			+ "JOIN ITEM ON ITEM.SlotNumber = OWNS.SlotNumber AND ITEM.ShelfNumber = OWNS.ShelfNumber\n"
+			+ "JOIN CLOTHING ON CLOTHING.ClothingID = ITEM.ClothingID\n"
+			+ "JOIN BRAND ON BRAND.BrandName = CLOTHING.BrandName\n"
+			+ "JOIN SHIRT ON SHIRT.ClothingID = CLOTHING.ClothingID;";
+	
+	
+    final static String SELECT_ALL_SHIRT = "SELECT ClothingID, Type FROM SHIRT";
     
+    final static String SELECT_BRAND_WHERE_CLOTHINGID = "SELECT B.BrandName, year FROM CLOTHING JOIN BRAND B ON CLOTHING.BrandName = B.BrandName\n"
+    		+ "WHERE CLOTHINGID = ?"; 
+    
+    final static String SELECT_CLOTHING_WHERE_CLOTHINGID = "SELECT ClothingId, Material, BrandName\n"
+    		+ "FROM CLOTHING \n"
+    		+ "WHERE ClothingId = ?; "; 
+    
+    
+    /**
+     * 
+     * @return
+     * @throws SQLException
+     */
+    public PreparedStatement getShirtsByOwnerAndBrand() throws SQLException {
+
+		PreparedStatement s = null;  
+
+		try {
+			
+			s = connection.prepareStatement(SELECT_SHIRTS_BY_OWNER_BRAND); 
+			
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+    	
+    	return s;  
+
+    }
+    
+   
 	/**
-	 * openConnection 
+	 * establishConnection 
 	 * @desc opens the connection to the database
 	 * @param uri - uri to database 
 	 * @param username - user name for database 
@@ -30,7 +72,7 @@ class Database{
 	 * @param driver_cname - database driver class name 
 	 * @return reference pointer to connection object 
 	 */
-    public static Connection getConnection(String uri, String username, String password, String driver_cname){
+    private Connection establishConnection(String uri, String username, String password, String driver_cname){
             Connection connection  = null; 
             try {
                 // Load driver 
@@ -49,20 +91,15 @@ class Database{
             return connection;
     }
 
-        /**
-        * given result set gather meta data and print the column headers
-        * @param r - result set to be parsed
-        * @throws SQLException
-        */
-        private static void printColumnHeaders(ResultSet r) throws SQLException {
-            ResultSetMetaData metaData = r.getMetaData(); 
-            
-            int numColumns = metaData.getColumnCount(); 
-            
-            for(int i = 1; i <= numColumns; i++)
-                System.out.print(metaData.getColumnLabel(i)+"\t");
-            System.out.println("\n");
-        }
+    public void closeConnection() {
+    	
+    	try {
+        	this.connection.close();
+    	}catch(SQLException e) {
+    		e.printStackTrace();
+    	}
+
+    }
         
 }
 

@@ -5,11 +5,21 @@ class CustomSwing{
 
     public static JTextField getCustomTextField(String text){
 
-        JTextField uriTextField = new JTextField(5); 
+        JTextField tf = new JTextField(5); 
 
-        uriTextField.setFont(new Font("Arial", Font.BOLD, 18)); 
-        uriTextField.setForeground(new Color(117, 125, 138)); 
+        tf.setFont(new Font("Arial", Font.BOLD, 18)); 
+        tf.setForeground(new Color(117, 125, 138)); 
 
-        return uriTextField; 
+        return tf; 
     }
+    
+    public static JLabel getCustomlabel(String text, int fontSize, int alignment, Color color){
+
+    	JLabel label = new JLabel(text, alignment); 
+		label.setFont(new Font("Arial", Font.BOLD, fontSize)); 
+		label.setForeground(color);
+		
+		return label;  
+    }
+    
 }
