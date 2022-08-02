@@ -1,5 +1,7 @@
 
-import java.awt.*; 
+import java.awt.*;
+import java.sql.Connection;
+
 import javax.swing.*;
 
 
@@ -86,7 +88,7 @@ public class Closet {
         String password = passwordTextField.getText();
         String driver_cname = driverTextField.getText(); 
 
-        Database.getConnection(uri, username, password, driver_cname); 
+        Connection connection = Database.getConnection(uri, username, password, driver_cname); 
         
         if(connection != null)
             JOptionPane.showMessageDialog(null, "connected successfuly");
