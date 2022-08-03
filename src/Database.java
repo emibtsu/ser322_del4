@@ -33,14 +33,86 @@ class Database{
 	
     final static String SELECT_ALL_SHIRT = "SELECT ClothingID, Type FROM SHIRT";
     
+    //need to make method
+    final static String SELECT_ALL_PANTS = "SELECT OFirstName, OMiddleName, OLastName, Brand.BrandName, isLong, CLOTHING.Material\n"
+    		+ "FROM OWNER\n" 
+    		+ "JOIN OWNS ON OWNER.OID = OWNS.OID\n"
+    		+ "JOIN ITEM ON ITEM.SlotNumber = OWNS.SlotNumber AND ITEM.ShelfNumber = OWNS.ShelfNumber\n"
+    		+ "JOIN CLOTHING ON CLOTHING.ClothingID = ITEM.ClothingID\n"
+    		+ "JOIN BRAND ON BRAND.BrandName = CLOTHING.BrandName\n"
+    		+ "JOIN PANTS ON PANTS.ClothingID = CLOTHING.ClothingID;";
+    
+    //need to make method
+    final static String SELECT_ALL_OUTERWEAR ="SELECT OFirstName, OMiddleName, OLastName, Brand.BrandName, isJacket, CLOTHING.Material\r\n"
+    		+ "FROM OWNER \r\n"
+    		+ "JOIN OWNS ON OWNER.OID = OWNS.OID\r\n"
+    		+ "JOIN ITEM ON ITEM.SlotNumber = OWNS.SlotNumber AND ITEM.ShelfNumber = OWNS.ShelfNumber\r\n"
+    		+ "JOIN CLOTHING ON CLOTHING.ClothingID = ITEM.ClothingID\r\n"
+    		+ "JOIN BRAND ON BRAND.BrandName = CLOTHING.BrandName\r\n"
+    		+ "JOIN OUTERWEAR ON OUTERWEAR.ClothingID = CLOTHING.ClothingID;";
+    
+    //need to make method
+    final static String SELECT_ALL_CLOTHING_BY_WORN = "SELECT OFirstName, OMiddleName, OLastName, CLOTHING.ClothingID, DateWorn\r\n"
+    		+ "FROM OWNER \r\n"
+    		+ "JOIN OWNS ON OWNS.OID = OWNER.OID\r\n"
+    		+ "JOIN ITEM ON ITEM.SlotNumber = OWNS.SlotNumber AND ITEM.ShelfNumber = OWNS.ShelfNumber\r\n"
+    		+ "JOIN CLOTHING ON CLOTHING.ClothingID = ITEM.ClothingID;";
+    
+    //need to make method for 
+    final static String SELECT_ITEM_WORN_BYWHOM_WHERE_LOCATION = "SELECT OFirstName, OMiddleName, OLastName, CLOTHING.ClothingID, DateWorn\r\n"
+    		+ "FROM OWNER \r\n"
+    		+ "JOIN OWNS ON OWNS.OID = OWNER.OID\r\n"
+    		+ "JOIN ITEM ON ITEM.SlotNumber = OWNS.SlotNumber AND ITEM.ShelfNumber = OWNS.ShelfNumber\r\n"
+    		+ "JOIN CLOTHING ON CLOTHING.ClothingID = ITEM.ClothingID\r\n"
+    		+ "WHERE ITEM.ShelfNumber = ? AND ITEM.SlotNumber = ?;";
+    
+    //need to make method for
+    final static String SELECT_ALL_CLOTHING_OWNED = "SELECT OFirstName, OMiddleName, OLastName, S.ClothingID, ITEM.ShelfNumber, ITEM.SlotNumber\n"
+    		+ "FROM\n"
+    		+ "(( \n"
+    		+ "SELECT CLOTHING.ClothingID\n"
+    		+ "FROM CLOTHING\n"
+    		+ " JOIN SHIRT ON SHIRT.ClothingID = CLOTHING.ClothingID)\n"
+    		+ " UNION \n"
+    		+ " (\n"
+    		+ " SELECT CLOTHING.ClothingID\n"
+    		+ "FROM CLOTHING\n"
+    		+ " JOIN PANTS ON PANTS.ClothingID = CLOTHING.ClothingID\n"
+    		+ " )\n"
+    		+ " UNION\n"
+    		+ "  (\n"
+    		+ " SELECT CLOTHING.ClothingID\n"
+    		+ "FROM CLOTHING\n"
+    		+ " JOIN OUTERWEAR ON OUTERWEAR.ClothingID = CLOTHING.ClothingID\n"
+    		+ " ) ) AS S\n"
+    		+ " \r\n"
+    		+ " JOIN ITEM ON S.ClothingID = ITEM.ClothingID\n"
+    		+ " JOIN OWNS ON OWNS.SlotNumber = ITEM.SlotNumber AND OWNS.ShelfNumber = ITEM.ShelfNumber\n"
+    		+ " JOIN OWNER ON OWNS.OID = OWNER.OID;";
+    
+    //need to make method for
+    final static String SELECT_ALL_CLOTHING_NOT_OWNED = "SELECT Clothing.ClothingID, BRAND.BrandName, I.ShelfNumber, I.SlotNumber\n"
+    		+ " FROM ITEM AS I\n"
+    		+ " JOIN CLOTHING ON I.ClothingID = CLOTHING.ClothingID\n"
+    		+ " JOIN BRAND ON BRAND.BrandName = CLOTHING.BrandName\n"
+    		+ " WHERE NOT EXISTS \n"
+    		+ "(\n"
+    		+ "	SELECT * \n"
+    		+ "    FROM OWNS \r\n"
+    		+ "    WHERE I.SlotNumber = OWNS.SlotNumber \n"
+    		+ "		AND I.ShelfNumber = OWNS.ShelfNumber\n"
+    		+ ");";
+    
+    //need to make method
     final static String SELECT_BRAND_WHERE_CLOTHINGID = "SELECT B.BrandName, year FROM CLOTHING JOIN BRAND B ON CLOTHING.BrandName = B.BrandName\n"
     		+ "WHERE CLOTHINGID = ?"; 
     
+    //need to make method
     final static String SELECT_CLOTHING_WHERE_CLOTHINGID = "SELECT ClothingId, Material, BrandName\n"
     		+ "FROM CLOTHING \n"
     		+ "WHERE ClothingId = ?; "; 
     
-    
+
     /**
      * 
      * @return
