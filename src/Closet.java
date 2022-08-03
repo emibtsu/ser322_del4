@@ -1,13 +1,14 @@
 
 import java.awt.*;
 import java.sql.Connection;
+import java.sql.SQLException;
 
 import javax.swing.*;
 
 
 public class Closet {
 
-	final static String WINDOW_TITLE_LOGIN="Closet Database"; 
+	final static String WINDOW_TITLE_LOGIN="Closet"; 
 	final static String LABEL_HEADER = "Enter Database Details"; 
 	final static String BUTTON_LOGIN = "Login"; 
 	final static String IMG_LOGIN_PATH = "img/closet.jpg"; 
@@ -31,9 +32,7 @@ public class Closet {
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
 		// header label
-		JLabel headerLabel = new JLabel(LABEL_HEADER, SwingConstants.CENTER); 
-		headerLabel.setFont(new Font("Arial", Font.BOLD, 20)); 
-		headerLabel.setForeground(Color.WHITE); 
+		JLabel headerLabel = CustomSwing.getCustomlabel(LABEL_HEADER, 20, SwingConstants.CENTER, Color.WHITE); 
 		headerLabel.setBorder(BorderFactory.createEmptyBorder(0, 0, 150, 0));
 
 		// textfield
@@ -91,15 +90,40 @@ public class Closet {
 
 	public static void handleLoginButtonPressed(){
 
+		// establish connection using a database object 
 		String uri =  uriTextField.getText(); 
 		String username = usernameTextField.getText(); 
 		String password = passwordTextField.getText();
-		String driver_cname = driverTextField.getText(); 
+		String driver_cname = driverTextField.getText();  
 
-		Connection connection = Database.getConnection(uri, username, password, driver_cname); 
+		Database database = new Database(uri, username, password, driver_cname); 
+		
+		createAllClothingFrame(database); 
+	}
+	
+	public static void createAllClothingFrame(Database database) {
+		
+		// initialize frame
+		JFrame frame = new JFrame("all clothes or something"); 
+		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		frame.setLocationRelativeTo(null);  
+		
+		try {
+			int[] specialColumns = {1, 2}; 
+			frame.add(new JListPanel(database.getShirtsByOwnerAndBrand(), specialColumns));
+			
+			database.closeConnection();  
+		
+		} catch (SQLException e) {
+			e.printStackTrace();
+		} 
+		frame.pack(); 
 
-		if(connection != null)
-			JOptionPane.showMessageDialog(null, "connected successful");
+		frame.setVisible(true); 
+		
+
 	}
 	// should implement all selects from the doc (:
+	
+
 }
