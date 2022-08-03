@@ -33,7 +33,14 @@ class Database{
 	
     final static String SELECT_ALL_SHIRT = "SELECT ClothingID, Type FROM SHIRT";
     
-    //need to make method
+    final public String SELECT_ALL_SHIRTS ="SELECT OFirstName, OMiddleName, OLastName, Brand.BrandName, Type, CLOTHING.Material\n"
+    		+ "FROM OWNER \n"
+    		+ "JOIN OWNS ON OWNER.OID = OWNS.OID\n"
+    		+ "JOIN ITEM ON ITEM.SlotNumber = OWNS.SlotNumber AND ITEM.ShelfNumber = OWNS.ShelfNumber\n"
+    		+ "JOIN CLOTHING ON CLOTHING.ClothingID = ITEM.ClothingID\n"
+    		+ "JOIN BRAND ON BRAND.BrandName = CLOTHING.BrandName\n"
+    		+ "JOIN SHIRT ON SHIRT.ClothingID = CLOTHING.ClothingID;";
+    
     final static String SELECT_ALL_PANTS = "SELECT OFirstName, OMiddleName, OLastName, Brand.BrandName, isLong, CLOTHING.Material\n"
     		+ "FROM OWNER\n" 
     		+ "JOIN OWNS ON OWNER.OID = OWNS.OID\n"
@@ -42,7 +49,6 @@ class Database{
     		+ "JOIN BRAND ON BRAND.BrandName = CLOTHING.BrandName\n"
     		+ "JOIN PANTS ON PANTS.ClothingID = CLOTHING.ClothingID;";
     
-    //need to make method
     final static String SELECT_ALL_OUTERWEAR ="SELECT OFirstName, OMiddleName, OLastName, Brand.BrandName, isJacket, CLOTHING.Material\r\n"
     		+ "FROM OWNER \r\n"
     		+ "JOIN OWNS ON OWNER.OID = OWNS.OID\r\n"
@@ -51,22 +57,19 @@ class Database{
     		+ "JOIN BRAND ON BRAND.BrandName = CLOTHING.BrandName\r\n"
     		+ "JOIN OUTERWEAR ON OUTERWEAR.ClothingID = CLOTHING.ClothingID;";
     
-    //need to make method
     final static String SELECT_ALL_CLOTHING_BY_WORN = "SELECT OFirstName, OMiddleName, OLastName, CLOTHING.ClothingID, DateWorn\r\n"
     		+ "FROM OWNER \r\n"
     		+ "JOIN OWNS ON OWNS.OID = OWNER.OID\r\n"
     		+ "JOIN ITEM ON ITEM.SlotNumber = OWNS.SlotNumber AND ITEM.ShelfNumber = OWNS.ShelfNumber\r\n"
     		+ "JOIN CLOTHING ON CLOTHING.ClothingID = ITEM.ClothingID;";
     
-    //need to make method for 
-    final static String SELECT_ITEM_WORN_BYWHOM_WHERE_LOCATION = "SELECT OFirstName, OMiddleName, OLastName, CLOTHING.ClothingID, DateWorn\r\n"
+    final static String SELECT_ITEM_WHERE_LOCATION = "SELECT OFirstName, OMiddleName, OLastName, CLOTHING.ClothingID, DateWorn\r\n"
     		+ "FROM OWNER \r\n"
     		+ "JOIN OWNS ON OWNS.OID = OWNER.OID\r\n"
     		+ "JOIN ITEM ON ITEM.SlotNumber = OWNS.SlotNumber AND ITEM.ShelfNumber = OWNS.ShelfNumber\r\n"
     		+ "JOIN CLOTHING ON CLOTHING.ClothingID = ITEM.ClothingID\r\n"
     		+ "WHERE ITEM.ShelfNumber = ? AND ITEM.SlotNumber = ?;";
     
-    //need to make method for
     final static String SELECT_ALL_CLOTHING_OWNED = "SELECT OFirstName, OMiddleName, OLastName, S.ClothingID, ITEM.ShelfNumber, ITEM.SlotNumber\n"
     		+ "FROM\n"
     		+ "(( \n"
@@ -90,7 +93,6 @@ class Database{
     		+ " JOIN OWNS ON OWNS.SlotNumber = ITEM.SlotNumber AND OWNS.ShelfNumber = ITEM.ShelfNumber\n"
     		+ " JOIN OWNER ON OWNS.OID = OWNER.OID;";
     
-    //need to make method for
     final static String SELECT_ALL_CLOTHING_NOT_OWNED = "SELECT Clothing.ClothingID, BRAND.BrandName, I.ShelfNumber, I.SlotNumber\n"
     		+ " FROM ITEM AS I\n"
     		+ " JOIN CLOTHING ON I.ClothingID = CLOTHING.ClothingID\n"
@@ -103,7 +105,6 @@ class Database{
     		+ "		AND I.ShelfNumber = OWNS.ShelfNumber\n"
     		+ ");";
     
-    //need to make method
     final static String SELECT_BRAND_WHERE_CLOTHINGID = "SELECT B.BrandName, year FROM CLOTHING JOIN BRAND B ON CLOTHING.BrandName = B.BrandName\n"
     		+ "WHERE CLOTHINGID = ?"; 
     
@@ -133,6 +134,203 @@ class Database{
     	return s;  
 
     }
+    
+    /**
+     * 
+     * @return
+     * @throws SQLException
+     */
+    public PreparedStatement getAllPants() throws SQLException {
+
+		PreparedStatement s = null;  
+
+		try {
+			
+			s = connection.prepareStatement(SELECT_ALL_PANTS); 
+			
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+    	
+    	return s;  
+
+    }
+    
+    /**
+     * 
+     * @return
+     * @throws SQLException
+     */
+    public PreparedStatement getAllOuterwear() throws SQLException {
+
+		PreparedStatement s = null;  
+
+		try {
+			
+			s = connection.prepareStatement(SELECT_ALL_OUTERWEAR); 
+			
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+    	
+    	return s;  
+
+    }
+    
+    /**
+     * 
+     * @return
+     * @throws SQLException
+     */
+    public PreparedStatement getAllShirts() throws SQLException {
+
+		PreparedStatement s = null;  
+
+		try {
+			
+			s = connection.prepareStatement(SELECT_ALL_SHIRTS); 
+			
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+    	
+    	return s;  
+
+    }
+    
+    /**
+     * 
+     * @return
+     * @throws SQLException
+     */
+    public PreparedStatement getAllClothingByWorn() throws SQLException {
+
+		PreparedStatement s = null;  
+
+		try {
+			
+			s = connection.prepareStatement(SELECT_ALL_CLOTHING_BY_WORN); 
+			
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+    	
+    	return s;  
+
+    }
+    
+    /**
+     * 
+     * @return
+     * @throws SQLException
+     */
+    public PreparedStatement getAllClothingOwned() throws SQLException {
+
+		PreparedStatement s = null;  
+
+		try {
+			
+			s = connection.prepareStatement(SELECT_ALL_CLOTHING_OWNED); 
+			
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+    	
+    	return s;  
+
+    }
+    
+    /**
+     * 
+     * @return
+     * @throws SQLException
+     */
+    public PreparedStatement getAllClothingNotOwned() throws SQLException {
+
+		PreparedStatement s = null;  
+
+		try {
+			
+			s = connection.prepareStatement(SELECT_ALL_CLOTHING_NOT_OWNED); 
+			
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+    	
+    	return s;  
+
+    }
+    
+    /**
+     * 
+     * @param slotNo
+     * @param shelfNo
+     * @return
+     * @throws SQLException
+     */
+    public PreparedStatement getItemWhereLocation(String slotNo, String shelfNo) throws SQLException {
+
+		PreparedStatement s = null;  
+		
+		try {
+			String withVals = SELECT_ITEM_WHERE_LOCATION;
+			withVals = withVals.replaceFirst("?", slotNo);
+			withVals = withVals.replaceFirst("?", shelfNo);
+			s = connection.prepareStatement(withVals); 
+			
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+    	
+    	return s;  
+
+    }
+    
+    /**
+     * 
+     * @param clothingID
+     * @return
+     * @throws SQLException
+     */
+    public PreparedStatement getBrandWhereClothingID(String clothingID) throws SQLException {
+
+		PreparedStatement s = null;  
+		
+		try {
+			String withVals = SELECT_BRAND_WHERE_CLOTHINGID;
+			withVals = withVals.replaceFirst("?", clothingID);
+			s = connection.prepareStatement(withVals); 
+			
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+    	
+    	return s;  
+
+    }
+    
+    /**
+     * 
+     * @param clothingID
+     * @return
+     * @throws SQLException
+     */
+    public PreparedStatement getClothingWhereClothingID(String clothingID) throws SQLException {
+
+		PreparedStatement s = null;  
+		
+		try {
+			String withVals = SELECT_CLOTHING_WHERE_CLOTHINGID;
+			withVals = withVals.replaceFirst("?", clothingID);
+			s = connection.prepareStatement(withVals); 
+			
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+    	
+    	return s;  
+    }
+
     
    
 	/**
