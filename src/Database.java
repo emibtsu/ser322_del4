@@ -108,12 +108,35 @@ class Database{
     final static String SELECT_BRAND_WHERE_CLOTHINGID = "SELECT B.BrandName, year FROM CLOTHING JOIN BRAND B ON CLOTHING.BrandName = B.BrandName\n"
     		+ "WHERE CLOTHINGID = ?"; 
     
-    //need to make method
     final static String SELECT_CLOTHING_WHERE_CLOTHINGID = "SELECT ClothingId, Material, BrandName\n"
     		+ "FROM CLOTHING \n"
     		+ "WHERE ClothingId = ?; "; 
     
-
+    final static String SELECT_ALL_CLOTHING_BY_OWNED = "SELECT OFirstName, OMiddleName, OLastName, S.ClothingID, ITEM.ShelfNumber, ITEM.SlotNumber\n"
+    		+ "FROM\n"
+    		+ "(( \n"
+    		+ "SELECT CLOTHING.ClothingID\n"
+    		+ "FROM CLOTHING\n"
+    		+ " JOIN SHIRT ON SHIRT.ClothingID = CLOTHING.ClothingID)\n"
+    		+ " UNION \n"
+    		+ " (\n"
+    		+ " SELECT CLOTHING.ClothingID\n"
+    		+ "FROM CLOTHING\n"
+    		+ " JOIN PANTS ON PANTS.ClothingID = CLOTHING.ClothingID\n"
+    		+ " )\n"
+    		+ " UNION\n"
+    		+ "  (\n"
+    		+ " SELECT CLOTHING.ClothingID\n"
+    		+ "FROM CLOTHING\n"
+    		+ " JOIN OUTERWEAR ON OUTERWEAR.ClothingID = CLOTHING.ClothingID\n"
+    		+ " ) ) AS S\n"
+    		+ " \r\n"
+    		+ " JOIN ITEM ON S.ClothingID = ITEM.ClothingID\n"
+    		+ " JOIN OWNS ON OWNS.SlotNumber = ITEM.SlotNumber AND OWNS.ShelfNumber = ITEM.ShelfNumber\n"
+    		+ " JOIN OWNER ON OWNS.OID = OWNER.OID;"
+    		+ "	WHERE OWNS.OID =?";
+    
+    
     /**
      * 
      * @return
@@ -331,7 +354,22 @@ class Database{
     	return s;  
     }
 
-    
+    public PreparedStatement getAllClothesByOwnerID(String OwnerID) throws SQLException {
+
+		PreparedStatement s = null;  
+		
+		try {
+			String withVals = SELECT_ALL_CLOTHING_BY_OWNED;
+			withVals = withVals.replaceFirst("?", OwnerID);
+			s = connection.prepareStatement(withVals); 
+			
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+    	
+    	return s;  
+
+    }
    
 	/**
 	 * establishConnection 
