@@ -42,3 +42,7 @@ Emily: Help with adding labels to GUI (Paul did most GUI btw), add all select st
 - fixed cardinality of Clothing has Brand relationship
 - identified entity Color and its relationship with Item (M:N cardinality per initial requirements)
 - eliminated year as being part of the primary key per the initial requirements (i.e., brand name is singular primary key)
+
+## Structure of code
+
+## Description of Application Activities
