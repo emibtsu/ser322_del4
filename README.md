@@ -1,5 +1,7 @@
 # ser322_del4
 
+## Application Description
+
 ## Steps to create DB
 run closet_5_create.sql in workbench
 run closet_5_insert.sql in workbench
