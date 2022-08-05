@@ -136,6 +136,63 @@ class Database{
     		+ " JOIN OWNER ON OWNS.OID = OWNER.OID;"
     		+ "	WHERE OWNS.OID =?";
     
+    final static String INSERT_OWNER = "INSERT INTO OWNER \n"
+    		+ "VALUES (?, \"?\", \"?\", \"?\",\"?\");";
+    
+    final static String INSERT_BRAND = "INSERT INTO BRAND\r\n"
+    		+ "VALUES(\"?\", ?);";
+    
+    final static String INSERT_CLOTHING = "INSERT INTO CLOTHING\n"
+    		+ "VALUES(?, \"?\", \"?\");";
+    
+    final static String INSERT_ITEM = "INSERT INTO ITEM\n"
+    		+ "VALUES(\"?\", ?, ?, ?, ?, ?);";
+    
+    //need to make method for
+    final static String INSERT_COLOR = "INSERT INTO COLOR\n"
+    		+ "VALUES(\"?\");";
+    
+    final static String INSERT_PANTS = "INSERT INTO PANTS\n"
+    		+ "VALUES(?, ?);";
+    
+    final static String INSERT_SHIRT = "INSERT INTO SHIRT\n"
+    		+ "VAlUES (?, \"?\");";
+    
+    final static String INSERT_OUTERWEAR = "INSERT INTO OUTERWEAR\n"
+    		+ "VALUES(?, ?);";
+    
+    final static String INSERT_OWNS = "INSERT INTO OWNS\n"
+    		+ "VALUES(?, '?', '?', ?, 3?;";
+    
+    final static String INSERT_HAS_COLOR = "INSERT INTO HAS_COLOR\n"
+    		+ "VAlUES(\"?\", ?, ?);";
+    
+    final static String DELETE_OWNER = "DELETE FROM OWNER\n"
+    		+ "WHERE ?= OID AND \"?\"=OFirstName AND \"?\"=OMiddleName AND \"?\"=OMiddleName AND \"?\" = OLastName AND \"?\"=Size;";
+    
+    final static String DELETE_OWNS = "DELETE FROM OWNS\n"
+    		+ "WHERE ?=OID AND '?'=DateWorn AND '?'=DateAquired AND ?=ShelfNumber AND ?=SlotNumber;";
+    
+    final static String DELETE_CLOTHING = "DELETE FROM CLOTHING\n"
+    		+ "WHERE ?=ClothingID AND \"?\"=Material AND \"?\"=BrandName;";
+    
+    final static String DELETE_COLOR = "DELETE FROM COLOR\n"
+    		+ "WHERE \"?\"=ColorName;";
+    
+    final static String DELETE_HAS_COLOR = "DELETE FROM COLOR\n"
+    		+ "WHERE \"?\"=ColorName AND ?=ShelfNumber AND ?=SlotNumber;";
+    
+    final static String DELETE_ITEM = "DELETE FROM ITEM\n"
+    		+ "WHERE \"?\"=Size AND ? = isClean AND ?=isDamaged AND ?=ShelfNumber AND ?=SlotNumber AND ?=ClothingID;";
+    
+    final static String DELETE_OUTERWEAR = "DELETE FROM OUTERWEAR\n"
+    		+ "WHERE ?=ClothingID AND ?=isJacket;";
+    
+    final static String DELETE_SHIRT = "DELETE FROM SHIRT\n"
+    		+ "WHERE ?=ClothingID AND \"?\"=Type;";
+    
+    final static String DELETE_PANTS = "DELETE FROM OUTERPANTS\n"
+    		+ "WHERE ?=ClothingID AND ?=isLong;";
     
     /**
      * runs a query based on in file constant

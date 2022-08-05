@@ -41,7 +41,7 @@ class JActionFrame extends JFrame {
 	final static String SELECTION = "Selection"; 
 	
 	final static String SEARCH = "search"; 
-	final static String DELETE = "delete; "; 
+	final static String DELETE = "delete"; 
 	final static String UPDATE = "update"; 
 	final static String INSERT = "insert"; 
 	
