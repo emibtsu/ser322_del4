@@ -70,11 +70,9 @@ public class JListPanel extends JPanel{
 		JPanel containerPanel = new  JPanel(); 
 		containerPanel.setLayout(new FlowLayout());
 		
-		JLabel label = addResultSetLabel(rs); 
-		JListPanel.JDataButton button = new JListPanel.JDataButton(specialColumns, "delete or something"); 
+		JLabel label = addResultSetLabel(rs);  
 	
 		containerPanel.add(label);
-		containerPanel.add(button); 
 		
 		this.add(containerPanel); 
 		 
@@ -133,28 +131,6 @@ public class JListPanel extends JPanel{
 	    }
 	    
 	    return str; 
-	}
-	
-	/**
-	 * Its a button, but with data! 
-	 * 
-	 * useful for storing things when yo uhave to create a list 
-	 * of itmes. e.g., set the data=clothingID for a delete button
-	 * @author paulgates
-	 *
-	 */
-	public class JDataButton extends JButton{
-		ArrayList<String> data; 
-		
-		public JDataButton(int[] specialColumns, String text) throws SQLException {
-			
-			ArrayList<String> data = new ArrayList<String>(); 
-			
-			this.setText(text);
-			
-			for(int i = 0; i < specialColumns.length; i++)
-				data.add(resultSet.getString(specialColumns[i])); 
-		}
 	}
 			
 }

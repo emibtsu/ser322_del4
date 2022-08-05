@@ -1,13 +1,16 @@
 
 import java.awt.*;
 import java.sql.Connection;
+import java.sql.DatabaseMetaData;
+import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
 
 import javax.swing.*;
 
 
 public class Closet {
-
+	
 	final static String WINDOW_TITLE_LOGIN="Closet"; 
 	final static String LABEL_HEADER = "Enter Database Details"; 
 	final static String BUTTON_LOGIN = "Login"; 
@@ -18,14 +21,19 @@ public class Closet {
 	private static JTextField passwordTextField; 
 	private static JTextField driverTextField;
 
+	Database database; 
+	
 	public static void main(String args[]){
-		createLogInWindow(); 
+		
+		Closet closet = new Closet(); 
+		
+		closet.createLogInWindow(); 
 	}
 
 	/**
 	 * creates and displays the initial owner log in window
 	 */
-	private static void createLogInWindow(){
+	private void createLogInWindow(){
 
 		// initialize frame
 		JFrame frame = new JFrame(WINDOW_TITLE_LOGIN); 
@@ -91,7 +99,7 @@ public class Closet {
 	}
 
 
-	public static void handleLoginButtonPressed(){
+	public void handleLoginButtonPressed(){
 
 		// establish connection using a database object 
 		String uri =  uriTextField.getText(); 
@@ -99,83 +107,13 @@ public class Closet {
 		String password = passwordTextField.getText();
 		String driver_cname = driverTextField.getText();  
 
-		Database database = new Database(uri, username, password, driver_cname); 
+		// initialize global database object
+		database = new Database(uri, username, password, driver_cname); 
 		promptType(database); 
 	}
 
-	public static void handleSearchButtonPressed(){
 
-		// establish connection using a database object 
-		String uri =  uriTextField.getText(); 
-		String username = usernameTextField.getText(); 
-		String password = passwordTextField.getText();
-		String driver_cname = driverTextField.getText();  
-
-		Database database = new Database(uri, username, password, driver_cname); 
-		searchSelected(database); 
-	}
-
-	public static void handleInsertButtonPressed(){
-
-		// establish connection using a database object 
-		String uri =  uriTextField.getText(); 
-		String username = usernameTextField.getText(); 
-		String password = passwordTextField.getText();
-		String driver_cname = driverTextField.getText();  
-
-		Database database = new Database(uri, username, password, driver_cname); 
-		insertSelected(database); 
-	}
-
-	public static void handleUpdateButtonPressed(){
-
-		// establish connection using a database object 
-		String uri =  uriTextField.getText(); 
-		String username = usernameTextField.getText(); 
-		String password = passwordTextField.getText();
-		String driver_cname = driverTextField.getText();  
-
-		Database database = new Database(uri, username, password, driver_cname); 
-		updateSelected(database); 
-	}
-
-	public static void handleDeleteButtonPressed(){
-
-		// establish connection using a database object 
-		String uri =  uriTextField.getText(); 
-		String username = usernameTextField.getText(); 
-		String password = passwordTextField.getText();
-		String driver_cname = driverTextField.getText();  
-
-		Database database = new Database(uri, username, password, driver_cname); 
-		deleteSelected(database); 
-	}
-
-
-	public static void createAllClothingFrame(Database database) {
-
-		// initialize frame
-		JFrame frame = new JFrame("all clothes or something"); 
-		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		frame.setLocationRelativeTo(null);  
-
-		try {
-			int[] specialColumns = {1, 2}; 
-			frame.add(new JListPanel(database.getShirtsByOwnerAndBrand(), specialColumns));
-
-			database.closeConnection();  
-
-		} catch (SQLException e) {
-			e.printStackTrace();
-		} 
-		frame.pack(); 
-
-		frame.setVisible(true); 
-
-
-	}
-
-	public static void promptType(Database database) {
+	private void promptType(Database database) {
 
 		// initialize frame
 		JFrame frame = new JFrame("Database options"); 
@@ -187,36 +125,27 @@ public class Closet {
 		JLabel prompt = new JLabel("Prompt");
 		prompt.setText("Would you like to search, insert, update, delete?");
 		p.add(prompt);
-
-		JButton searchButton = new JButton("Search"); 
-		searchButton.setFont(new Font("Arial", Font.BOLD, 14));
-		searchButton.setForeground(new Color(117, 125, 138)); 
-		searchButton.addActionListener(e -> handleSearchButtonPressed());
-
-		JButton insertButton = new JButton("Insert"); 
-		insertButton.setFont(new Font("Arial", Font.BOLD, 14));
-		insertButton.setForeground(new Color(117, 125, 138)); 
-		insertButton.addActionListener(e -> handleInsertButtonPressed());
-
-		JButton updateButton = new JButton("Update"); 
-		updateButton.setFont(new Font("Arial", Font.BOLD, 14));
-		updateButton.setForeground(new Color(117, 125, 138)); 
-		updateButton.addActionListener(e -> handleUpdateButtonPressed());
-
-		JButton deleteButton = new JButton("Delete"); 
-		deleteButton.setFont(new Font("Arial", Font.BOLD, 14));
-		deleteButton.setForeground(new Color(117, 125, 138)); 
-		deleteButton.addActionListener(e -> handleDeleteButtonPressed());
+		
+		JDataButton searchButton = new JDataButton(JActionFrame.SEARCH, JActionFrame.ActionType.search);
+		JDataButton insertButton = new JDataButton(JActionFrame.INSERT, JActionFrame.ActionType.insert); 
+		JDataButton deleteButton = new JDataButton(JActionFrame.DELETE, JActionFrame.ActionType.delete); 
+		JDataButton updateButton = new JDataButton(JActionFrame.UPDATE, JActionFrame.ActionType.update); 
+		
+		searchButton.addActionListener(e -> handleOptionButtonSelected(searchButton.data));
+		insertButton.addActionListener(e -> handleOptionButtonSelected(insertButton.data));
+		deleteButton.addActionListener(e -> handleOptionButtonSelected(deleteButton.data));
+		updateButton.addActionListener(e -> handleOptionButtonSelected(updateButton.data));
 
 		buttons.add(searchButton);
 		buttons.add(insertButton);
 		buttons.add(updateButton);
 		buttons.add(deleteButton);
+		
 		frame.add(p, BorderLayout.NORTH);
 		frame.add(buttons, BorderLayout.SOUTH);
 
 		frame.setSize(new Dimension(320,64));
-		database.closeConnection(); 
+ 
 		frame.pack(); 
 
 		frame.setVisible(true); 
@@ -224,164 +153,103 @@ public class Closet {
 
 	}
 
-	public static void searchSelected(Database database) {
+	private void handleOptionButtonSelected(ArrayList<Object> data) {
+		
+		if(data==null)
+			return;
+		
+		JActionFrame actionFrame = null; 
+		
+		switch ((JActionFrame.ActionType)data.get(0)) {
+		case search: 
+			actionFrame = new JActionFrame(JActionFrame.ActionType.search ,"search"); 
+			break;
+		case insert: 
+			actionFrame = new JActionFrame(JActionFrame.ActionType.insert ,"insert"); 
+			break; 
+		case delete: 
+			 actionFrame = new JActionFrame(JActionFrame.ActionType.delete ,"delete");
+			break;
+		case update: 
+			actionFrame = new JActionFrame(JActionFrame.ActionType.update ,"update");
+			break;
+		default:
+			break;
+		}
+		
+		
+		this.setUpPageButtonActionListeners(actionFrame); 
+		
+		if(actionFrame!=null)
+			actionFrame.setVisible(true);
+	}
 
-		// initialize frame
-		JFrame frame = new JFrame("Search Options"); 
-		JPanel p = new JPanel();
-		JPanel buttons = new JPanel();
-		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		frame.setLocationRelativeTo(null);  
-
-		JLabel prompt = new JLabel("Prompt");
-		prompt.setText("<html>Would you like to search?<br/>"
-				+ "1. Select All Shirts by Owner Brand<br/>"
-				+ "2. Select All Shirts<br/>"
-				+ "3. Select All Pants<br/>"
-				+ "4. Select All Outerwear<br/>"
-				+ "5. Select All Clothing by Worn<br/>"
-				+ "6. Select Item by Location<br/>"
-				+ "7. Select All Owned Clothes<br/>"
-				+ "8. Select All Clothes not Owned<br/>"
-				+ "9. Select Brand by Clothing ID<br/>"
-				+ "10. Select Clothes by Clothing ID<br/>"
-				+ "11. Select Clothes by Owner ID<html>");
-		JTextField selection = new JTextField("Selection");
-		JLabel selectLabel = new JLabel("Please type in selection");
-
-		p.add(prompt);
-		p.add(selectLabel);
-		p.add(selection);
-
-
-		frame.add(p, BorderLayout.NORTH);
-		frame.add(buttons, BorderLayout.SOUTH);
-
-		frame.setSize(new Dimension(320,64));
-		database.closeConnection(); 
-		frame.pack(); 
-
-		frame.setVisible(true); 
-
-
+	
+	private void setUpPageButtonActionListeners(JActionFrame af) {
+		for(int i = 0; i < af.pageButtons.size(); i++) {
+			JActionFrame.ActionOption actionOption = (JActionFrame.ActionOption) af.pageButtons.get(i).data.get(0); 
+			af.pageButtons.get(i).addActionListener(e->handlePageButton(actionOption));
+		}
+		
 	}
 	
-	public static void insertSelected(Database database) {
-
-		// initialize frame
-		JFrame frame = new JFrame("Insert Options"); 
-		JPanel p = new JPanel();
-		JPanel buttons = new JPanel();
-		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		frame.setLocationRelativeTo(null);  
-
-		JLabel prompt = new JLabel("Prompt");
-		prompt.setText("<html>Would you like to insert?<br/>"
-				+ "1. Owner<br/>"
-				+ "2. Brand<br/>"
-				+ "3. Clothing<br/>"
-				+ "4. Item<br/>"
-				+ "5. Color<br/>"
-				+ "6. Type of Clothing<br/>"
-				+ "7. Owns relationship<br/>"
-				+ "8. Has color relationship<br/>");
-		JTextField selection = new JTextField("Selection");
-		JLabel selectLabel = new JLabel("Please type in selection");
-
-		p.add(prompt);
-		p.add(selectLabel);
-		p.add(selection);
-
-
-		frame.add(p, BorderLayout.NORTH);
-		frame.add(buttons, BorderLayout.SOUTH);
-
-		frame.setSize(new Dimension(320,64));
-		database.closeConnection(); 
-		frame.pack(); 
-
-		frame.setVisible(true); 
-
-
+	private void handlePageButton(JActionFrame.ActionOption actionOption) {
+		
+		String tableName = ""; 
+		
+		switch(actionOption) {
+		case clothing: 
+			tableName = "Clothing"; 
+			break; 
+			
+		case owner:
+			tableName = "Owner";
+			break; 
+			
+		case brand: 
+			tableName = "Brand"; 
+			break;
+			
+		case color:
+			tableName = "Color"; 
+			break;
+			
+		case item: 
+			tableName = "item"; 
+			break; 
+			
+		case owns:
+			tableName = "owns"; 
+		}
+		
+		DatabaseMetaData metaData; 
+		try {
+			metaData = database.getConnection().getMetaData();
+			
+			ResultSet rs = metaData.getColumns("closet", null, tableName, null);
+			   
+			ArrayList<String> args = new ArrayList<String>(); 
+			
+			while (rs.next())
+				   args.add(rs.getString("COLUMN_NAME"));
+			
+			JFormFrame formFrame = new JFormFrame(args); 
+			
+			formFrame.setVisible(true);
+			
+		} catch (SQLException e) {
+			showExceptionMessage("trouble getting meta data for database", e); 
+		} 
+		
+		
 	}
 	
-	public static void updateSelected(Database database) {
-
-		// initialize frame
-		JFrame frame = new JFrame("Update Options"); 
-		JPanel p = new JPanel();
-		JPanel buttons = new JPanel();
-		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		frame.setLocationRelativeTo(null);  
-
-		JLabel prompt = new JLabel("Prompt");
-		prompt.setText("<html>Would you like to Update?<br/>"
-				+ "1. Owner<br/>"
-				+ "2. Brand<br/>"
-				+ "3. Clothing<br/>"
-				+ "4. Item<br/>"
-				+ "5. Color<br/>"
-				+ "6. Type of Clothing<br/>"
-				+ "7. Owns relationship<br/>"
-				+ "8. Has color relationship<br/>");
-		JTextField selection = new JTextField("Selection");
-		JLabel selectLabel = new JLabel("Please type in selection");
-
-		p.add(prompt);
-		p.add(selectLabel);
-		p.add(selection);
-
-
-		frame.add(p, BorderLayout.NORTH);
-		frame.add(buttons, BorderLayout.SOUTH);
-
-		frame.setSize(new Dimension(320,64));
-		database.closeConnection(); 
-		frame.pack(); 
-
-		frame.setVisible(true); 
-
-
-	}
-	
-	public static void deleteSelected(Database database) {
-
-		// initialize frame
-		JFrame frame = new JFrame("Delete Options"); 
-		JPanel p = new JPanel();
-		JPanel buttons = new JPanel();
-		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		frame.setLocationRelativeTo(null);  
-
-		JLabel prompt = new JLabel("Prompt");
-		prompt.setText("<html>Would you like to Delete?<br/>"
-				+ "1. Owner<br/>"
-				+ "2. Brand<br/>"
-				+ "3. Clothing<br/>"
-				+ "4. Item<br/>"
-				+ "5. Color<br/>"
-				+ "6. Type of Clothing<br/>"
-				+ "7. Owns relationship<br/>"
-				+ "8. Has color relationship<br/>");
-		JTextField selection = new JTextField("Selection");
-		JLabel selectLabel = new JLabel("Please type in selection");
-
-		p.add(prompt);
-		p.add(selectLabel);
-		p.add(selection);
-
-
-		frame.add(p, BorderLayout.NORTH);
-		frame.add(buttons, BorderLayout.SOUTH);
-
-		frame.setSize(new Dimension(320,64));
-		database.closeConnection(); 
-		frame.pack(); 
-
-		frame.setVisible(true); 
-
-
-	}
+	 public static void showExceptionMessage(String msg, Exception e){
+	        JOptionPane.showMessageDialog(null, msg, "Exception has occured: " + msg + "see stack trace for more detail", JOptionPane.INFORMATION_MESSAGE);
+	        
+	        if(e!=null)
+	        	e.printStackTrace();
+	  }
 
 
 }
