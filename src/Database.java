@@ -21,6 +21,9 @@ class Database{
 	}
    
     // queries
+	
+	final static String SELECT_OWNERS = "SELECT*\n"
+			+ "FROM OWNER;";
 	final static String SELECT_SHIRTS_BY_OWNER_BRAND = "SELECT ITEM.SlotNumber, ITEM.ShelfNumber, OFirstName, OMiddleName, OLastName, Brand.BrandName, Type, CLOTHING.Material\n"
 		
 			+ "FROM OWNER \n"
@@ -30,10 +33,8 @@ class Database{
 			+ "JOIN BRAND ON BRAND.BrandName = CLOTHING.BrandName\n"
 			+ "JOIN SHIRT ON SHIRT.ClothingID = CLOTHING.ClothingID;";
 	
-	
-    final static String SELECT_ALL_SHIRT = "SELECT ClothingID, Type FROM SHIRT";
-    
-    final public String SELECT_ALL_SHIRTS ="SELECT OFirstName, OMiddleName, OLastName, Brand.BrandName, Type, CLOTHING.Material\n"
+	    
+    final public static String SELECT_ALL_SHIRTS ="SELECT OFirstName, OMiddleName, OLastName, Brand.BrandName, Type, CLOTHING.Material\n"
     		+ "FROM OWNER \n"
     		+ "JOIN OWNS ON OWNER.OID = OWNS.OID\n"
     		+ "JOIN ITEM ON ITEM.SlotNumber = OWNS.SlotNumber AND ITEM.ShelfNumber = OWNS.ShelfNumber\n"

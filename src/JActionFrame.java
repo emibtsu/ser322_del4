@@ -51,16 +51,26 @@ class JActionFrame extends JFrame {
 	final static String COLOR = "Color";
 	final static String ITEM = "Item";
 	final static String OWNS = "Owns"; 
-
+	
+	final static String GET_OWNERS = "Get Owners";
+	final static String GET_SHIRTS = "Get Shirts";
+	final static String GET_PANTS = "Get Pants";
+	final static String GET_OUTERWEAR = "Get Outerwear";
+	final static String GET_CLOTHING_BY_WORN = "Get Clothing Worn";
+	final static String GET_ITEM_AT_LOCATION = "Get Item at Location";
+	final static String GET_ALL_OWNED = "Get clothing Owned";
+	final static String GET_ALL_NOT_OWNED = "Get clothing unowned";
+	final static String GET_ALL_BRAND_BY_CID = "Get Brand by CID";
+	final static String GET_CLOTHING_BY_ID = "Get Clothing by CID";
 	
 	enum ActionType{
 		insert, delete, update, search
 	}
 	
 	enum ActionOption{
-		owner, clothing, brand, color, item, owns
+		owner, clothing, brand, color, item, owns, shirt, pants, outerwear, 
+		getOwner, getShirt, getPants, getClothingByCid, getBrandByCid, getUnowned, getOwned, getClothingByWorn, getOuterwear, getItemAt
 	}
-	
 	private ActionType actionType; 
 	
 	ArrayList<JDataButton> pageButtons; 
@@ -135,10 +145,19 @@ class JActionFrame extends JFrame {
 	// TODO - write this 
 	private ArrayList<JDataButton> loadPageButtonsAsSelect() {
 		
-		
 		ArrayList<JDataButton> buttons = new ArrayList<JDataButton>();
 		
+		pageButtons.add(new JDataButton(GET_OWNERS, ActionOption.getOwner)); 
+		pageButtons.add( new JDataButton(GET_SHIRTS, ActionOption.getShirt));
+		pageButtons.add(new JDataButton(GET_PANTS, ActionOption.getPants)); 
+		pageButtons.add(new JDataButton(GET_OUTERWEAR, ActionOption.getOuterwear)); 
+		pageButtons.add(new JDataButton(GET_CLOTHING_BY_WORN, ActionOption.getClothingByWorn)); 
+		pageButtons.add(new JDataButton(GET_ITEM_AT_LOCATION, ActionOption.getItemAt));  
 		
+		pageButtons.add(new JDataButton(GET_ALL_OWNED, ActionOption.getOwned)); 
+		pageButtons.add(new JDataButton(GET_ALL_NOT_OWNED, ActionOption.getUnowned)); 
+		pageButtons.add(new JDataButton(GET_ALL_BRAND_BY_CID, ActionOption.getBrandByCid)); 
+		pageButtons.add(new JDataButton(GET_CLOTHING_BY_ID, ActionOption.getClothingByCid));  
 		
 		return buttons; 
 	}
