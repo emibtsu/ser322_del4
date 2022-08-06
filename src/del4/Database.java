@@ -1,3 +1,4 @@
+package del4;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
@@ -7,7 +8,7 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
 
-class Database{
+public class Database{
 
 	private Connection connection; 
 	
@@ -201,7 +202,7 @@ class Database{
      * @return
      * @throws SQLException
      */
-    public PreparedStatement runQuery(String query, Object[] args) throws SQLException{
+    public PreparedStatement runQuery(String query, ArrayList<Object> args) throws SQLException{
     	
     	PreparedStatement s = null;  
 	
@@ -215,9 +216,9 @@ class Database{
     }
     
    
-    private void setPreparedStatementArgs(Object[] args, PreparedStatement s) throws SQLException {
-		for(int i = 0; i < args.length; i++)
-			s.setString(i+1, String.valueOf(args[i])); // Indexes starting @ 1 not 0 
+    private void setPreparedStatementArgs(ArrayList<Object> args, PreparedStatement s) throws SQLException {
+		for(int i = 0; i < args.size(); i++)
+			s.setString(i+1, String.valueOf(args.get(i))); // Indexes starting @ 1 not 0 
     }
  
    

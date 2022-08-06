@@ -1,3 +1,4 @@
+package del4;
 import java.awt.Color;
 import java.awt.Font;
 import java.sql.ResultSet;
@@ -6,7 +7,7 @@ import java.util.ArrayList;
 
 import javax.swing.JButton;
 
-/**
+	/**
 	 * Its a button, but with data! 
 	 * 
 	 * useful for storing things when yo uhave to create a list 
@@ -15,9 +16,8 @@ import javax.swing.JButton;
 	 *
 	 */
 public class JDataButton extends JButton{
-	ArrayList<Object> data; 
-	
-	
+	private ArrayList<Object> data;  
+
 	/**
 	 * Constructor - takes that text that appears on the button and any data to be saved 
 	 * for later, i.e., the entire point of making this class
@@ -32,6 +32,7 @@ public class JDataButton extends JButton{
 		
 		beautify(); 
 	}
+	
 	
 	 /**
 	 * Constructor - takes that text that appears on the button and any data to be saved 
@@ -50,6 +51,20 @@ public class JDataButton extends JButton{
 		
 		this.setText(text);
 		beautify(); 
+	}
+	
+	
+	/**
+	 * use this method to get data when you only loaded the button with a single 
+	 * piece of data (basically what is used for single attribute primary key data objects) 
+	 * @return
+	 */
+	public Object getDataSingle() {
+		return this.data.get(0);
+	}
+	
+	public ArrayList<Object> getData() {
+		return this.data; 
 	}
 	
 	/**
