@@ -21,6 +21,9 @@ class Database{
 	}
    
     // queries
+	
+	final static String SELECT_OWNERS = "SELECT*\n"
+			+ "FROM OWNER;";
 	final static String SELECT_SHIRTS_BY_OWNER_BRAND = "SELECT ITEM.SlotNumber, ITEM.ShelfNumber, OFirstName, OMiddleName, OLastName, Brand.BrandName, Type, CLOTHING.Material\n"
 		
 			+ "FROM OWNER \n"
@@ -30,10 +33,8 @@ class Database{
 			+ "JOIN BRAND ON BRAND.BrandName = CLOTHING.BrandName\n"
 			+ "JOIN SHIRT ON SHIRT.ClothingID = CLOTHING.ClothingID;";
 	
-	
-    final static String SELECT_ALL_SHIRT = "SELECT ClothingID, Type FROM SHIRT";
-    
-    final public String SELECT_ALL_SHIRTS ="SELECT OFirstName, OMiddleName, OLastName, Brand.BrandName, Type, CLOTHING.Material\n"
+	    
+    final public static String SELECT_ALL_SHIRTS ="SELECT OFirstName, OMiddleName, OLastName, Brand.BrandName, Type, CLOTHING.Material\n"
     		+ "FROM OWNER \n"
     		+ "JOIN OWNS ON OWNER.OID = OWNS.OID\n"
     		+ "JOIN ITEM ON ITEM.SlotNumber = OWNS.SlotNumber AND ITEM.ShelfNumber = OWNS.ShelfNumber\n"
@@ -136,240 +137,89 @@ class Database{
     		+ " JOIN OWNER ON OWNS.OID = OWNER.OID;"
     		+ "	WHERE OWNS.OID =?";
     
+    final static String INSERT_OWNER = "INSERT INTO OWNER \n"
+    		+ "VALUES (?, \"?\", \"?\", \"?\",\"?\");";
+    
+    final static String INSERT_BRAND = "INSERT INTO BRAND\r\n"
+    		+ "VALUES(\"?\", ?);";
+    
+    final static String INSERT_CLOTHING = "INSERT INTO CLOTHING\n"
+    		+ "VALUES(?, \"?\", \"?\");";
+    
+    final static String INSERT_ITEM = "INSERT INTO ITEM\n"
+    		+ "VALUES(\"?\", ?, ?, ?, ?, ?);";
+    
+    //need to make method for
+    final static String INSERT_COLOR = "INSERT INTO COLOR\n"
+    		+ "VALUES(\"?\");";
+    
+    final static String INSERT_PANTS = "INSERT INTO PANTS\n"
+    		+ "VALUES(?, ?);";
+    
+    final static String INSERT_SHIRT = "INSERT INTO SHIRT\n"
+    		+ "VAlUES (?, \"?\");";
+    
+    final static String INSERT_OUTERWEAR = "INSERT INTO OUTERWEAR\n"
+    		+ "VALUES(?, ?);";
+    
+    final static String INSERT_OWNS = "INSERT INTO OWNS\n"
+    		+ "VALUES(?, '?', '?', ?, 3?;";
+    
+    final static String INSERT_HAS_COLOR = "INSERT INTO HAS_COLOR\n"
+    		+ "VAlUES(\"?\", ?, ?);";
+    
+    final static String DELETE_OWNER = "DELETE FROM OWNER\n"
+    		+ "WHERE ?= OID AND \"?\"=OFirstName AND \"?\"=OMiddleName AND \"?\"=OMiddleName AND \"?\" = OLastName AND \"?\"=Size;";
+    
+    final static String DELETE_OWNS = "DELETE FROM OWNS\n"
+    		+ "WHERE ?=OID AND '?'=DateWorn AND '?'=DateAquired AND ?=ShelfNumber AND ?=SlotNumber;";
+    
+    final static String DELETE_CLOTHING = "DELETE FROM CLOTHING\n"
+    		+ "WHERE ?=ClothingID AND \"?\"=Material AND \"?\"=BrandName;";
+    
+    final static String DELETE_COLOR = "DELETE FROM COLOR\n"
+    		+ "WHERE \"?\"=ColorName;";
+    
+    final static String DELETE_HAS_COLOR = "DELETE FROM COLOR\n"
+    		+ "WHERE \"?\"=ColorName AND ?=ShelfNumber AND ?=SlotNumber;";
+    
+    final static String DELETE_ITEM = "DELETE FROM ITEM\n"
+    		+ "WHERE \"?\"=Size AND ? = isClean AND ?=isDamaged AND ?=ShelfNumber AND ?=SlotNumber AND ?=ClothingID;";
+    
+    final static String DELETE_OUTERWEAR = "DELETE FROM OUTERWEAR\n"
+    		+ "WHERE ?=ClothingID AND ?=isJacket;";
+    
+    final static String DELETE_SHIRT = "DELETE FROM SHIRT\n"
+    		+ "WHERE ?=ClothingID AND \"?\"=Type;";
+    
+    final static String DELETE_PANTS = "DELETE FROM OUTERPANTS\n"
+    		+ "WHERE ?=ClothingID AND ?=isLong;";
     
     /**
-     * 
+     * runs a query based on in file constant
+     * @param query
      * @return
      * @throws SQLException
      */
-    public PreparedStatement getShirtsByOwnerAndBrand() throws SQLException {
-
-		PreparedStatement s = null;  
-
-		try {
-			
-			s = connection.prepareStatement(SELECT_SHIRTS_BY_OWNER_BRAND); 
-			
-		} catch (SQLException e) {
-			e.printStackTrace();
-		}
+    public PreparedStatement runQuery(String query, Object[] args) throws SQLException{
     	
-    	return s;  
-
-    }
-    
-    /**
-     * 
-     * @return
-     * @throws SQLException
-     */
-    public PreparedStatement getAllPants() throws SQLException {
-
-		PreparedStatement s = null;  
-
-		try {
-			
-			s = connection.prepareStatement(SELECT_ALL_PANTS); 
-			
-		} catch (SQLException e) {
-			e.printStackTrace();
-		}
-    	
-    	return s;  
-
-    }
-    
-    /**
-     * 
-     * @return
-     * @throws SQLException
-     */
-    public PreparedStatement getAllOuterwear() throws SQLException {
-
-		PreparedStatement s = null;  
-
-		try {
-			
-			s = connection.prepareStatement(SELECT_ALL_OUTERWEAR); 
-			
-		} catch (SQLException e) {
-			e.printStackTrace();
-		}
-    	
-    	return s;  
-
-    }
-    
-    /**
-     * 
-     * @return
-     * @throws SQLException
-     */
-    public PreparedStatement getAllShirts() throws SQLException {
-
-		PreparedStatement s = null;  
-
-		try {
-			
-			s = connection.prepareStatement(SELECT_ALL_SHIRTS); 
-			
-		} catch (SQLException e) {
-			e.printStackTrace();
-		}
-    	
-    	return s;  
-
-    }
-    
-    /**
-     * 
-     * @return
-     * @throws SQLException
-     */
-    public PreparedStatement getAllClothingByWorn() throws SQLException {
-
-		PreparedStatement s = null;  
-
-		try {
-			
-			s = connection.prepareStatement(SELECT_ALL_CLOTHING_BY_WORN); 
-			
-		} catch (SQLException e) {
-			e.printStackTrace();
-		}
-    	
-    	return s;  
-
-    }
-    
-    /**
-     * 
-     * @return
-     * @throws SQLException
-     */
-    public PreparedStatement getAllClothingOwned() throws SQLException {
-
-		PreparedStatement s = null;  
-
-		try {
-			
-			s = connection.prepareStatement(SELECT_ALL_CLOTHING_OWNED); 
-			
-		} catch (SQLException e) {
-			e.printStackTrace();
-		}
-    	
-    	return s;  
-
-    }
-    
-    /**
-     * 
-     * @return
-     * @throws SQLException
-     */
-    public PreparedStatement getAllClothingNotOwned() throws SQLException {
-
-		PreparedStatement s = null;  
-
-		try {
-			
-			s = connection.prepareStatement(SELECT_ALL_CLOTHING_NOT_OWNED); 
-			
-		} catch (SQLException e) {
-			e.printStackTrace();
-		}
-    	
-    	return s;  
-
-    }
-    
-    /**
-     * 
-     * @param slotNo
-     * @param shelfNo
-     * @return
-     * @throws SQLException
-     */
-    public PreparedStatement getItemWhereLocation(String slotNo, String shelfNo) throws SQLException {
-
-		PreparedStatement s = null;  
+    	PreparedStatement s = null;  
+	
+		s = connection.prepareStatement(query); 
 		
-		try {
-			String withVals = SELECT_ITEM_WHERE_LOCATION;
-			withVals = withVals.replaceFirst("?", slotNo);
-			withVals = withVals.replaceFirst("?", shelfNo);
-			s = connection.prepareStatement(withVals); 
-			
-		} catch (SQLException e) {
-			e.printStackTrace();
-		}
-    	
-    	return s;  
+		if(args!=null)
+			setPreparedStatementArgs(args, s); 
+
+    	return s; 
 
     }
     
-    /**
-     * 
-     * @param clothingID
-     * @return
-     * @throws SQLException
-     */
-    public PreparedStatement getBrandWhereClothingID(String clothingID) throws SQLException {
-
-		PreparedStatement s = null;  
-		
-		try {
-			String withVals = SELECT_BRAND_WHERE_CLOTHINGID;
-			withVals = withVals.replaceFirst("?", clothingID);
-			s = connection.prepareStatement(withVals); 
-			
-		} catch (SQLException e) {
-			e.printStackTrace();
-		}
-    	
-    	return s;  
-
+   
+    private void setPreparedStatementArgs(Object[] args, PreparedStatement s) throws SQLException {
+		for(int i = 0; i < args.length; i++)
+			s.setString(i+1, String.valueOf(args[i])); // Indexes starting @ 1 not 0 
     }
-    
-    /**
-     * 
-     * @param clothingID
-     * @return
-     * @throws SQLException
-     */
-    public PreparedStatement getClothingWhereClothingID(String clothingID) throws SQLException {
-
-		PreparedStatement s = null;  
-		
-		try {
-			String withVals = SELECT_CLOTHING_WHERE_CLOTHINGID;
-			withVals = withVals.replaceFirst("?", clothingID);
-			s = connection.prepareStatement(withVals); 
-			
-		} catch (SQLException e) {
-			e.printStackTrace();
-		}
-    	
-    	return s;  
-    }
-
-    public PreparedStatement getAllClothesByOwnerID(String OwnerID) throws SQLException {
-
-		PreparedStatement s = null;  
-		
-		try {
-			String withVals = SELECT_ALL_CLOTHING_BY_OWNED;
-			withVals = withVals.replaceFirst("?", OwnerID);
-			s = connection.prepareStatement(withVals); 
-			
-		} catch (SQLException e) {
-			e.printStackTrace();
-		}
-    	
-    	return s;  
-
-    }
+ 
    
 	/**
 	 * establishConnection 
@@ -410,5 +260,3 @@ class Database{
     }
         
 }
-
-	
