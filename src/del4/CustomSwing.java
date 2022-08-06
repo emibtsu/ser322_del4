@@ -1,11 +1,14 @@
+package del4;
 import java.awt.*; 
 import javax.swing.*;
 
-class CustomSwing{
+public class CustomSwing{
 
     public static JTextField getCustomTextField(String text){
 
         JTextField tf = new JTextField(5); 
+        
+        tf.setText(text);
 
         tf.setFont(new Font("Arial", Font.BOLD, 18)); 
         tf.setForeground(new Color(117, 125, 138)); 

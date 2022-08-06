@@ -1,16 +1,19 @@
+package del4;
 import java.awt.BorderLayout;
 import java.awt.Dimension;
+import java.awt.FlowLayout;
 import java.util.ArrayList;
 
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
+import javax.swing.JButton;
 import javax.swing.JComponent;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 import javax.swing.border.Border;
-
+import action.*; 
 class JActionFrame extends JFrame {
 	
 	final static String SEARCH_OPTIONS = "<html>Would you like to search?<br/>"
@@ -67,19 +70,15 @@ class JActionFrame extends JFrame {
 		insert, delete, update, search
 	}
 	
-	enum ActionOption{
-		owner, clothing, brand, color, item, owns, shirt, pants, outerwear, 
-		getOwner, getShirt, getPants, getClothingByCid, getBrandByCid, getUnowned, getOwned, getClothingByWorn, getOuterwear, getItemAt
-	}
 	private ActionType actionType; 
 	
 	ArrayList<JDataButton> pageButtons; 
 	Database database; 
 	
-	public JActionFrame(ActionType at, String title) {
+	public JActionFrame(ActionType at, String title, Database db) {
 	
 		super(title);
-		
+		this.database = db; 
 		pageButtons = new ArrayList<JDataButton>(); 
 		
 		this.actionType = at; 
@@ -89,26 +88,21 @@ class JActionFrame extends JFrame {
 	private void setUpFrame() {
 		
 		JPanel p = new JPanel();
-		JPanel buttons = new JPanel();
-		buttons.setLayout(new BoxLayout(buttons, BoxLayout.PAGE_AXIS)); 
+		JPanel buttonsPanel = new JPanel();
+		buttonsPanel.setLayout(new BoxLayout(buttonsPanel, BoxLayout.PAGE_AXIS)); 
 		
 		Border padding = BorderFactory.createEmptyBorder(10, 40, 10, 40);
 
-		buttons.setBorder(padding);
+		buttonsPanel.setBorder(padding);
 		
 		this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		this.setLocationRelativeTo(null);  
 
-		loadPageOptionbuttons(); 
+		loadPageOptionbuttons(buttonsPanel); 
 
 		
-		addComponents(p); 
-		
-		for(int i = 0; i < pageButtons.size(); i++)
-			buttons.add(pageButtons.get(i)); 
-		
 		this.add(p, BorderLayout.NORTH); 
-		this.add(buttons,  BorderLayout.SOUTH); 
+		this.add(buttonsPanel,  BorderLayout.SOUTH); 
 
 		this.setSize(new Dimension(320,64));
 		this.pack(); 
@@ -120,53 +114,78 @@ class JActionFrame extends JFrame {
 	 * 
 	 * @return
 	 */
-	private void loadPageOptionbuttons() {
+	private void loadPageOptionbuttons(JPanel buttonsPanel) {
 		
 		if(this.actionType==ActionType.search)
-			loadPageButtonsAsSelect(); 
+			loadPageButtonsAsSelect(buttonsPanel); 
 		else
-			loadPageButtonsAsDDL(); 
+			loadPageButtonsAsDDL(buttonsPanel); 
 		
 	}
 	
-	private ArrayList<JDataButton> loadPageButtonsAsDDL() {
+
+
+	private ArrayList<JDataButton> loadPageButtonsAsDDL(JPanel buttonsPanel) {
 		ArrayList<JDataButton> buttons = new ArrayList<JDataButton>();
 		
-		pageButtons.add(new JDataButton(OWNER, ActionOption.owner)); 
-		pageButtons.add( new JDataButton(CLOTHING, ActionOption.clothing));
-		pageButtons.add(new JDataButton(BRAND, ActionOption.brand)); 
-		pageButtons.add(new JDataButton(COLOR, ActionOption.color)); 
-		pageButtons.add(new JDataButton(ITEM, ActionOption.item)); 
-		pageButtons.add(new JDataButton(OWNS, ActionOption.owns));  
+		//buttonsPanel.add(new JDataButton(OWNER, ActionOption.owner)); 
+		//buttonsPanel.add( new JDataButton(CLOTHING, ActionOption.clothing));
+		//pageButtons.add(new JDataButton(BRAND, ActionOption.brand)); 
+		//buttonsPanel.add(new JDataButton(COLOR, ActionOption.color)); 
+		//buttonsPanel.add(new JDataButton(ITEM, ActionOption.item)); 
+		//buttonsPanel.add(new JDataButton(OWNS, ActionOption.owns));  
 	
 		return buttons; 
 	}
 
 	// TODO - write this 
-	private ArrayList<JDataButton> loadPageButtonsAsSelect() {
+	private ArrayList<JDataButton> loadPageButtonsAsSelect(JPanel buttonsPanel) {
 		
 		ArrayList<JDataButton> buttons = new ArrayList<JDataButton>();
 		
-		pageButtons.add(new JDataButton(GET_OWNERS, ActionOption.getOwner)); 
-		pageButtons.add( new JDataButton(GET_SHIRTS, ActionOption.getShirt));
-		pageButtons.add(new JDataButton(GET_PANTS, ActionOption.getPants)); 
-		pageButtons.add(new JDataButton(GET_OUTERWEAR, ActionOption.getOuterwear)); 
-		pageButtons.add(new JDataButton(GET_CLOTHING_BY_WORN, ActionOption.getClothingByWorn)); 
-		pageButtons.add(new JDataButton(GET_ITEM_AT_LOCATION, ActionOption.getItemAt));  
 		
-		pageButtons.add(new JDataButton(GET_ALL_OWNED, ActionOption.getOwned)); 
-		pageButtons.add(new JDataButton(GET_ALL_NOT_OWNED, ActionOption.getUnowned)); 
-		pageButtons.add(new JDataButton(GET_ALL_BRAND_BY_CID, ActionOption.getBrandByCid)); 
-		pageButtons.add(new JDataButton(GET_CLOTHING_BY_ID, ActionOption.getClothingByCid));  
+		initializeAndLoadDataButton(buttonsPanel, GET_OWNERS, Database.SELECT_ALL_CLOTHING_OWNED); 
+		initializeAndLoadDataButton(buttonsPanel, GET_PANTS, Database.SELECT_ALL_PANTS); 
+		initializeAndLoadDataButton(buttonsPanel, GET_OUTERWEAR, Database.SELECT_ALL_OUTERWEAR); 
+		initializeAndLoadDataButton(buttonsPanel, GET_CLOTHING_BY_WORN, Database.SELECT_ALL_CLOTHING_BY_WORN); 
+		
+		initalizeAndLoadDataButton(buttonsPanel, GET_ITEM_AT_LOCATION, Database.SELECT_ITEM_WHERE_LOCATION, "shelf no", "slot no"); 
+		initalizeAndLoadDataButton(buttonsPanel, GET_ALL_OWNED, Database.SELECT_ALL_CLOTHING_OWNED); 
+		initalizeAndLoadDataButton(buttonsPanel, GET_ALL_BRAND_BY_CID, Database.SELECT_BRAND_WHERE_CLOTHINGID, "cid"); 
+		initalizeAndLoadDataButton(buttonsPanel, GET_CLOTHING_BY_ID, Database.SELECT_CLOTHING_WHERE_CLOTHINGID, "cid"); 
+		initalizeAndLoadDataButton(buttonsPanel, GET_ALL_NOT_OWNED, Database.SELECT_ALL_CLOTHING_NOT_OWNED); 
 		
 		return buttons; 
 	}
+	
+	private void initalizeAndLoadDataButton( JPanel buttonsPanel, String buttonText, String databaseQuery, String... tf_texts) {
+		JPanel searchItemsHorizontalPanel = new JPanel(new FlowLayout()); 
 
-	private void addComponents(JComponent sup, JComponent ...components) {
+		ArrayList<Object> textFieldRefs = new ArrayList<Object>(); 
 		
-		for (JComponent component : components) {
-		      sup.add(component); 
-		 }
+		SearchOption so = new SearchOption(this.database, databaseQuery, textFieldRefs); 
+		JDataButton goButton = new JDataButton(buttonText, so); 
+		searchItemsHorizontalPanel.add(goButton); 
+		
+		for (String text : tf_texts)
+			foo(text, textFieldRefs, searchItemsHorizontalPanel); 
+
+		
+		buttonsPanel.add(searchItemsHorizontalPanel); 
+		
+		pageButtons.add(goButton); 
+	}
+
+	private void initializeAndLoadDataButton(JPanel buttonsPanel, String buttonText, String databaseQuery) {
+		JDataButton goButton = new JDataButton(buttonText, new SearchOption(this.database, databaseQuery, null)); 
+		buttonsPanel.add(goButton); 
+		pageButtons.add(goButton);
+	}
+
+	private void foo(String text, ArrayList<Object> list, JComponent superComponent) {
+		JTextField tf = CustomSwing.getCustomTextField(text);
+		list.add(tf); 
+		superComponent.add(tf);
 	}
 	
 
