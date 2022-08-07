@@ -1,3 +1,4 @@
+package del4;
 import java.awt.Color;
 import java.awt.FlowLayout;
 import java.sql.PreparedStatement;
@@ -25,6 +26,7 @@ public class JListPanel extends JPanel{
 
 	PreparedStatement statement; 
 	ResultSet resultSet; 
+	Integer[] specialColumns; 
 	
 	/**
 	 * Create a new list panel with clothing objects
@@ -34,18 +36,22 @@ public class JListPanel extends JPanel{
 	 * @param arrayList - list of objects that inherit from clothing
 	 * @throws SQLException 
 	 */
-	public JListPanel(PreparedStatement statement, int[] specialColumns) throws SQLException {
+	public JListPanel(PreparedStatement statement, Integer[] specialColumns) throws SQLException {
 
 		beautify(); 
+		
+		this.specialColumns = specialColumns; 
 		
 		resultSet = statement.executeQuery(); 
 
 		while(this.resultSet.next())
-			addPanel(this.resultSet, specialColumns); 
+			addPanel(this.resultSet); 
 		
 		closeDatabaseComponents();
 			
 	}
+	
+
 	
 	private void beautify() {
 
@@ -65,7 +71,7 @@ public class JListPanel extends JPanel{
 	 * @param clothing
 	 * @throws SQLException 
 	 */
-	private void addPanel(ResultSet rs, int[] specialColumns) throws SQLException {
+	private void addPanel(ResultSet rs) throws SQLException {
 
 		JPanel containerPanel = new  JPanel(); 
 		containerPanel.setLayout(new FlowLayout());

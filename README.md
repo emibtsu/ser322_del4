@@ -11,13 +11,13 @@ Have java jdk on PC ( I am using jdk16)
 The driver is included in the project (mysql-connector-java-8.0.29.jar) so no need to download seperately
 
 ## Build string (build from src)
-MAC: javac -d ./bin -cp  ./libs/mysql-connector-java-8.0.29.jar  Closet.java JImagePanel.java CustomSwing.java Database.java JListPanel.java JActionFrame.java JDataButton.java JFormFrame.java
+MAC: javac -d ./bin -cp  ./libs/mysql-connector-java-8.0.29.jar  ./del4/Closet.java ./del4/JImagePanel.java ./del4/CustomSwing.java ./del4/Database.java ./del4/JListPanel.java ./del4/JActionFrame.java ./del4/JDataButton.java ./del4/JFormFrame.java ./action/IActionOption.java ./action/DDLOption.java ./action/SearchOption.java
 
 
-WINDOWS: javac -d .\bin -cp .\libs\mysql-connector-java-8.0.29.jar Closet.java JImagePanel.java CustomSwing.java Database.java JListPanel.java Database.java JListPanel.java JActionFrame.java JDataButton.java JFormFrame.java
+WINDOWS: javac -d .\bin -cp .\libs\mysql-connector-java-8.0.29.jar Closet.java JImagePanel.java CustomSwing.java Database.java JListPanel.java Database.java JListPanel.java JActionFrame.java JDataButton.java JFormFrame.javaI ActionOption.java DDLOption.java SearchOption.java 
 
 ## Run String (run from src)
-MAC: java -cp ./bin:./libs/mysql-connector-java-8.0.29.jar Closet
+MAC: java -cp ./bin:./libs/mysql-connector-java-8.0.29.jar del4/Closet
 
 WINDOWS: java -cp .\bin;.\libs\mysql-connector-java-8.0.29.jar Closet
 

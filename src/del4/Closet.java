@@ -1,3 +1,4 @@
+package del4;
 
 import java.awt.*;
 import java.sql.Connection;
@@ -9,6 +10,7 @@ import java.util.ArrayList;
 
 import javax.swing.*;
 
+import action.*;
 
 public class Closet {
 
@@ -22,7 +24,8 @@ public class Closet {
 	private static JTextField passwordTextField; 
 	private static JTextField driverTextField;
 
-	Database database; 
+	private Database database; 
+	private JFrame mainFrame; 
 
 	public static void main(String args[]){
 
@@ -37,8 +40,8 @@ public class Closet {
 	private void createLogInWindow(){
 
 		// initialize frame
-		JFrame frame = new JFrame(WINDOW_TITLE_LOGIN); 
-		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		mainFrame = new JFrame(WINDOW_TITLE_LOGIN); 
+		mainFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
 		// header label
 		JLabel headerLabel = CustomSwing.getCustomlabel(LABEL_HEADER, 20, SwingConstants.CENTER, Color.WHITE); 
@@ -75,7 +78,7 @@ public class Closet {
 		int right = 70; 
 		panel.setBorder(BorderFactory.createEmptyBorder(top, left, bottom, right));
 
-		frame.add(panel); 
+		mainFrame.add(panel); 
 		panel.add(headerLabel); 
 		panel.add(uriLabel);
 		panel.add(uriTextField); 
@@ -91,12 +94,12 @@ public class Closet {
 
 		panel.setSize(500, 500); 
 
-		frame.setLocationRelativeTo(null); 
-		frame.setResizable(false);
+		mainFrame.setLocationRelativeTo(null); 
+		mainFrame.setResizable(false);
 
-		frame.pack(); 
+		mainFrame.pack(); 
 
-		frame.setVisible(true); 
+		mainFrame.setVisible(true); 
 	}
 
 
@@ -132,10 +135,10 @@ public class Closet {
 		JDataButton deleteButton = new JDataButton(JActionFrame.DELETE, JActionFrame.ActionType.delete); 
 		JDataButton updateButton = new JDataButton(JActionFrame.UPDATE, JActionFrame.ActionType.update); 
 
-		searchButton.addActionListener(e -> handleOptionButtonSelected(searchButton.data));
-		insertButton.addActionListener(e -> handleOptionButtonSelected(insertButton.data));
-		deleteButton.addActionListener(e -> handleOptionButtonSelected(deleteButton.data));
-		updateButton.addActionListener(e -> handleOptionButtonSelected(updateButton.data));
+		searchButton.addActionListener(e -> handleOptionButtonSelected(searchButton.getData()));
+		insertButton.addActionListener(e -> handleOptionButtonSelected(insertButton.getData()));
+		deleteButton.addActionListener(e -> handleOptionButtonSelected(deleteButton.getData()));
+		updateButton.addActionListener(e -> handleOptionButtonSelected(updateButton.getData()));
 
 		buttons.add(searchButton);
 		buttons.add(insertButton);
@@ -163,16 +166,16 @@ public class Closet {
 
 		switch ((JActionFrame.ActionType)data.get(0)) {
 		case search: 
-			actionFrame = new JActionFrame(JActionFrame.ActionType.search ,"search"); 
+			actionFrame = new JActionFrame(JActionFrame.ActionType.search ,"search", this.database); 
 			break;
 		case insert: 
-			actionFrame = new JActionFrame(JActionFrame.ActionType.insert ,"insert"); 
+			actionFrame = new JActionFrame(JActionFrame.ActionType.insert ,"insert", this.database); 
 			break; 
 		case delete: 
-			actionFrame = new JActionFrame(JActionFrame.ActionType.delete ,"delete");
+			actionFrame = new JActionFrame(JActionFrame.ActionType.delete ,"delete", this.database);
 			break;
 		case update: 
-			actionFrame = new JActionFrame(JActionFrame.ActionType.update ,"update");
+			actionFrame = new JActionFrame(JActionFrame.ActionType.update ,"update", this.database);
 			break;
 		default:
 			break;
@@ -185,126 +188,64 @@ public class Closet {
 			actionFrame.setVisible(true);
 	}
 
-
+	/**
+	 * for every button set up in the frame, get the corresponding action options 
+	 * and pass to handler
+	 * @param af
+	 */
 	private void setUpPageButtonActionListeners(JActionFrame af) {
 		for(int i = 0; i < af.pageButtons.size(); i++) {
-			JActionFrame.ActionOption actionOption = (JActionFrame.ActionOption) af.pageButtons.get(i).data.get(0); 
+			IActionOption actionOption =  (IActionOption) af.pageButtons.get(i).getDataSingle(); 
 			af.pageButtons.get(i).addActionListener(e->handlePageButton(actionOption));
 		}
 
 	}
 
-	private void handlePageButton(JActionFrame.ActionOption actionOption) {
+	/**
+	 * handles a page button being pressed
+	 * @param actionOption
+	 */
+	private void handlePageButton(IActionOption actionOption) {
 
-		String tableName = ""; 
+		JFrame frame = null;
+		try {
+			frame = actionOption.getActionFrame(); 
+		} catch (SQLException e) {
+			e.printStackTrace();
+		} 
+		frame.setVisible(true);
+	
+	}
+	
 
-		switch(actionOption) {
-		case clothing: 
-			tableName = "Clothing"; 
-			break; 
+	/**
+	 * Given a DDL option display a JFormFrame sculpted to the corresponding option
+	 * @param ddlOption
+	 * @throws SQLException
+	 */
+	private void displayDDLOptionFrame(DDLOption ddlOption) throws SQLException {
+		DatabaseMetaData metaData; 
+		try {
+			metaData = database.getConnection().getMetaData();
 
-		case owner:
-			tableName = "Owner";
-			break; 
+			ResultSet rs = metaData.getColumns("closet", null, ddlOption.getTableName(), null);
 
-		case brand: 
-			tableName = "Brand"; 
-			break;
-
-		case color:
-			tableName = "Color"; 
-			break;
-
-		case item: 
-			tableName = "item"; 
-			break; 
-
-		case owns:
-			tableName = "owns"; 
-
-		case pants:
-			tableName = "pants"; 
-
-		case shirt:
-			tableName = "shirt"; 
-
-		case outerwear:
-			tableName = "outerwear"; 
-		}
-		if(!tableName.contains("get")) {
-			DatabaseMetaData metaData; 
-			try {
-				metaData = database.getConnection().getMetaData();
-
-				ResultSet rs = metaData.getColumns("closet", null, tableName, null);
-
-				ArrayList<String> args = new ArrayList<String>(); 
-
-				while (rs.next())
-					args.add(rs.getString("COLUMN_NAME"));
-
-				JFormFrame formFrame = new JFormFrame(args); 
-
-				formFrame.setVisible(true);
-
-			} catch (SQLException e) {
-				showExceptionMessage("trouble getting meta data for database", e); 
-			} 
-
-
-		}
-		else {
-			String query = "";
-			switch(actionOption) {
-
-			case getOwner: 
-				query = Database.SELECT_OWNERS; 
-				break; 
-
-			case getShirt:
-				query = Database.SELECT_ALL_SHIRTS;
-				break; 
-
-			case getPants: 
-				query = Database.SELECT_ALL_PANTS;
-				break;
-
-			case getClothingByCid:
-				query = Database.SELECT_CLOTHING_WHERE_CLOTHINGID;
-				break;
-
-			case getBrandByCid: 
-				query = Database.SELECT_BRAND_WHERE_CLOTHINGID;
-				break; 
-
-			case getUnowned:
-				query = Database.SELECT_ALL_CLOTHING_NOT_OWNED;
-				break;
-			case getOwned:
-				query = Database.SELECT_ALL_CLOTHING_BY_OWNED;
-				break;
-			case getClothingByWorn:
-				query = Database.SELECT_ALL_CLOTHING_BY_WORN;
-				break;
-			case getOuterwear:
-				query = Database.SELECT_ALL_CLOTHING_BY_WORN;
-				break;
-			case getItemAt:
-				query = Database.SELECT_ALL_OUTERWEAR;
-				break;
-			}
-			//TODO: need to make query display on formFrame
 			ArrayList<String> args = new ArrayList<String>(); 
 
-
+			while (rs.next())
+				args.add(rs.getString("COLUMN_NAME"));
 
 			JFormFrame formFrame = new JFormFrame(args); 
 
 			formFrame.setVisible(true);
 
-		}
-
+		} catch (SQLException e) {
+			showExceptionMessage("trouble getting meta data for database", e); 
+		} 
 	}
+	
+
+
 
 	public static void showExceptionMessage(String msg, Exception e){
 		JOptionPane.showMessageDialog(null, msg, "Exception has occured: " + msg + "see stack trace for more detail", JOptionPane.INFORMATION_MESSAGE);
