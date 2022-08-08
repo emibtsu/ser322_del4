@@ -66,6 +66,11 @@ Paul:
 
 ## Structure of code
 
+UI - GUI using Java Swing
+JDBC Driver- runs with mysql-connector-java-8.0.29.jar, located in libs directory
+Middlewear- SQL DB Server running with JDBC
+DB - Run in mySQL workbench
+
 ## Description of Application Activities
 
 For search:
