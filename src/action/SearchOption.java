@@ -10,18 +10,34 @@ import javax.swing.JTextField;
 
 public class SearchOption implements IActionOption{
 
-	protected String queryString; 
-	protected Database database;
-	ArrayList<Object> args; 
+	public String selectStatement; 
+	public String ddl_deleteStatement;
+	public Database database;
+	public Table ddl_involved_table; 
+	public ArrayList<Object> whereClauseArgs; 
+	public JListPanel listPanel; 
 	
+	/**
+	 * getters and setters
+	 */
 	public Database getDatabase() {
 		return this.database;
 	}
 	
-	public SearchOption(Database db, String queryString, ArrayList<Object> args) {
+	public Table getTables() {
+		return this.ddl_involved_table;
+	}
+
+	public String getQueryString() {
+		return this.selectStatement;
+	}
+	
+	public SearchOption(Database db, String queryString, ArrayList<Object> whereClauseArgs, String ddlInvolvedTableName, String ddl_deleteStatement) {
 		this.database = db; 
-		this.queryString = queryString; 
-		this.args = args; 
+		this.selectStatement = queryString; 
+		this.whereClauseArgs = whereClauseArgs; 
+		this.ddl_involved_table = new Table(ddlInvolvedTableName, this.database); 
+		this.ddl_deleteStatement = ddl_deleteStatement; 
 	}
 	
 	@Override
@@ -29,10 +45,10 @@ public class SearchOption implements IActionOption{
 		
 		ArrayList<Object> finalizedArgs=null; 
 		
-		if(this.args!=null)
+		if(this.whereClauseArgs!=null)
 			finalizedArgs = getFinalizedArguments(); 
 		
-		return this.database.runQuery(queryString, finalizedArgs);  
+		return this.database.runQuery(selectStatement, finalizedArgs);  
 	}
 	
 
@@ -40,7 +56,7 @@ public class SearchOption implements IActionOption{
 	public JFrame getActionFrame() throws SQLException {
 		
 		JFrame frame = new JFrame(); 
-		JListPanel listPanel = new JListPanel(this.runQuery(), null);
+		listPanel = new JListPanel(this.runQuery(), ddl_involved_table);
 		
 		frame.add(listPanel); 
 		
@@ -50,21 +66,42 @@ public class SearchOption implements IActionOption{
 		frame.pack(); 
 		
 		return frame; 
-
 	}
 	
+
+	/**
+	 * gets all arguments from input JComponents
+	 * @return
+	 */
 	private ArrayList<Object> getFinalizedArguments() {
 		
 		ArrayList<Object> f_args = new ArrayList<Object>(); 
 		
-		for(int i=0; i < args.size(); i++)
-			f_args.add(foo(args.get(i))); 
+		for(int i=0; i < whereClauseArgs.size(); i++)
+			f_args.add(parseInputJComponent(whereClauseArgs.get(i))); 
 		
 		return f_args; 
 	}
 
 	
-	private Object foo(Object arg) {
+	public void delete(ArrayList<Object> deletionWhereClauseArgs){
+		
+		try {
+			(this.database.runQuery(ddl_deleteStatement, deletionWhereClauseArgs)).executeUpdate();
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} 
+	}
+	
+	/**
+	 * helps complete the WHERE clause in a selection 
+	 * in that is gets the text field arguments for a 
+	 * given selection
+	 * @param arg
+	 * @return
+	 */
+	private Object parseInputJComponent(Object arg) {
 		
 		// JTextField - returns text inside textfield argument
 		if(arg instanceof JTextField) {
@@ -73,6 +110,8 @@ public class SearchOption implements IActionOption{
 		
 		return null; 
 	}
+
+
 	
 
 }

@@ -1,6 +1,7 @@
 package del4;
 import java.awt.Color;
 import java.awt.FlowLayout;
+import java.sql.DatabaseMetaData;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
@@ -10,6 +11,8 @@ import java.util.ArrayList;
 
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
+import javax.swing.Icon;
+import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -24,10 +27,16 @@ import javax.swing.SwingConstants;
  */
 public class JListPanel extends JPanel{
 
-	PreparedStatement statement; 
-	ResultSet resultSet; 
-	Integer[] specialColumns; 
+	public PreparedStatement statement; 
+	public ResultSet resultSet; 
+	public ArrayList<Integer>specialColumns; 
+	public Table table; 
 	
+	public ArrayList<JDataButton> editButtons; 
+	public ArrayList<JDataButton> deleteButtons; 
+	
+	final static String UPDATE_BUTTON_IMG_PATH = "img/edit.png"; 
+	final static String DELETE_BUTTON_IMG_PATH = "img/delete.png"; 
 	/**
 	 * Create a new list panel with clothing objects
 	 * Add each item of clothing using clothing objects
@@ -36,11 +45,15 @@ public class JListPanel extends JPanel{
 	 * @param arrayList - list of objects that inherit from clothing
 	 * @throws SQLException 
 	 */
-	public JListPanel(PreparedStatement statement, Integer[] specialColumns) throws SQLException {
+	public JListPanel(PreparedStatement statement, Table table) throws SQLException {
 
 		beautify(); 
+		 
+		editButtons = new ArrayList<JDataButton>();
+		deleteButtons = new ArrayList<JDataButton>();
 		
-		this.specialColumns = specialColumns; 
+		
+		this.table = table; 
 		
 		resultSet = statement.executeQuery(); 
 
@@ -52,7 +65,9 @@ public class JListPanel extends JPanel{
 	}
 	
 
-	
+	/**
+	 * just make things look a little nicer
+	 */
 	private void beautify() {
 
 		int top = 10; 
@@ -77,14 +92,54 @@ public class JListPanel extends JPanel{
 		containerPanel.setLayout(new FlowLayout());
 		
 		JLabel label = addResultSetLabel(rs);  
+		
+		ArrayList<Object> savedData = getSpecialDataFor(rs);
+		
+		JDataButton editButton = new JDataButton("", savedData); 
+		Icon icon1 = new ImageIcon(UPDATE_BUTTON_IMG_PATH);
+		editButton.setIcon(icon1);
+		
+		JDataButton deleteButton = new JDataButton("", savedData); 
+		Icon icon2 = new ImageIcon(DELETE_BUTTON_IMG_PATH);
+		deleteButton.setIcon(icon2);
 	
 		containerPanel.add(label);
+		containerPanel.add(editButton);
+		containerPanel.add(deleteButton); 
+		
+		editButtons.add(editButton); 
+		deleteButtons.add(deleteButton); 
 		
 		this.add(containerPanel); 
-		 
 	}
 	
+
+	private ArrayList<Object> getSpecialDataFor(ResultSet rs) throws SQLException {
+		
+		ArrayList<Object> data = new ArrayList<Object>();
+		
+		for(int i = 0; i < rs.getMetaData().getColumnCount(); i++) {
+			String memberString = rs.getString(i+1);
+			
+
+		for(int k = 0; k < table.getPrimaryKeys().size(); k++) {
+			if(table.primaryKeys.get(k).equals(rs.getMetaData().getColumnName(i+1))) {
+				data.add(memberString); 
+			}
+		}
+					
 	
+		
+		}
+		
+		return data; 
+	}
+
+
+	/**
+	 * cleans up using database components such as the result set and statement
+	 * @throws SQLException
+	 */
 	private void closeDatabaseComponents() throws SQLException {
 		if(resultSet!=null)
 			resultSet.close();
@@ -115,14 +170,17 @@ public class JListPanel extends JPanel{
 	 */
 	private String parseResultSet(ResultSet rs) throws SQLException {
 		
-		String descString = "Item\t"; 
+		String descString = ""; 
 		
-		for(int i = 0; i < rs.getMetaData().getColumnCount(); i++)
-			descString += formatString(rs.getString(i+1)); // result set starts at 1
+		for(int i = 0; i < rs.getMetaData().getColumnCount(); i++) {
+			descString += formatString(rs.getString(i+1));
+		}
 		
 		return descString; 
 	}
+
 	
+
 	/**
 	 * TODO put this inside some kind of utility class if
 	 * this kind of logic is needed again 

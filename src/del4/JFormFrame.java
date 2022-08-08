@@ -5,6 +5,8 @@ import java.util.ArrayList;
 
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
+import javax.swing.JButton;
+import javax.swing.JCheckBox;
 import javax.swing.JComponent;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
@@ -14,27 +16,58 @@ import javax.swing.border.Border;
 
 public class JFormFrame extends JFrame{
 	
-	JPanel mainPanel; 
+	public JPanel mainPanel; 
+	public JButton goButton; 
 	
-	public JFormFrame(ArrayList<String> args) { 
+	private String tableName; 
+	
+	private ArrayList<JComponent> components; 
+	Database database; 
+	
+	public JFormFrame(ArrayList<String> args, String tableName) { 
 
 		setUpFrame(); 
 		
-		addComponentsUsing(args); 
+		components = new ArrayList<JComponent>();  
+		
+		this.tableName = tableName; 
+		
+		setUpAllComponents(args); 
 	}
 	
-	private void addComponentsUsing(ArrayList<String> args) {
+	private void setUpAllComponents(ArrayList<String> args) {
 		
-		for(int i = 0; i < args.size(); i++)
-			addLabelAndTextField(args.get(i)); 
+
+		for(int i = 0; i < args.size(); i++) {
+			
+			// TODO - make this better, not at all dynamic 
+			// but fixes one off case 
+			if(this.tableName==QueryStatements.ITEM_TABLE && (i==1 || i==2))
+				addCheckBox(args.get(i)); 
+			else
+				addLabelAndTextField(args.get(i)); 
+		}
+
 		
+		goButton = new JButton("go");
 		
+		addComponents(mainPanel, goButton); 
+		
+	}
+
+	private void addCheckBox(String str) {
+		JCheckBox cb = CustomSwing.getCustomrCheckBox(str); 
+		components.add(cb);
+		
+		addComponents(mainPanel, cb); 
 	}
 
 	private void addLabelAndTextField(String str) {
 		
 		JLabel label = new JLabel(str); 
 		JTextField tf = new JTextField(); 
+		
+		components.add(tf);
 	
 		addComponents(mainPanel, label, tf); 
 	}
@@ -65,6 +98,28 @@ public class JFormFrame extends JFrame{
 		      sup.add(component); 
 		 }
 	}
+
+	public ArrayList<Object> getTextFieldArgs() {
+		
+		ArrayList<Object> args = new ArrayList<Object>(); 
+		
+		for(int i = 0; i < components.size(); i++)
+			args.add(parseArgsFromJComponent(components.get(i))); 
+		
+		return args;
+	}
 	
+	
+	private Object parseArgsFromJComponent(JComponent component){
+		
+		if(component instanceof JTextField)
+			return ((JTextField)component).getText(); 
+		
+		// 1=true 0=false
+		if(component instanceof JCheckBox)
+			return ((JCheckBox)component).isSelected() ? 1 : 0;;
+		
+		return null; 
+	}
 	
 }

@@ -13,31 +13,10 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 import javax.swing.border.Border;
-import action.*; 
-class JActionFrame extends JFrame {
-	
-	final static String SEARCH_OPTIONS = "<html>Would you like to search?<br/>"
-			+ "1. Select All Shirts by Owner Brand<br/>"
-			+ "2. Select All Shirts<br/>"
-			+ "3. Select All Pants<br/>"
-			+ "4. Select All Outerwear<br/>"
-			+ "5. Select All Clothing by Worn<br/>"
-			+ "6. Select Item by Location<br/>"
-			+ "7. Select All Owned Clothes<br/>"
-			+ "8. Select All Clothes not Owned<br/>"
-			+ "9. Select Brand by Clothing ID<br/>"
-			+ "10. Select Clothes by Clothing ID<br/>"
-			+ "11. Select Clothes by Owner ID<html>";
-	
-	final static String DDL_OPTIONS = "<html>Would you like to Delete?<br/>"
-			+ "1. Owner<br/>"
-			+ "2. Brand<br/>"
-			+ "3. Clothing<br/>"
-			+ "4. Item<br/>"
-			+ "5. Color<br/>"
-			+ "6. Type of Clothing<br/>"
-			+ "7. Owns relationship<br/>"
-			+ "8. Has color relationship<br/>";
+import action.*;
+import del4.Database.ActionType; 
+
+public class JActionFrame extends JFrame {
 	
 	final static String TYPE_SELECTION_PROMPT = "Please type in selection";
 	
@@ -66,29 +45,22 @@ class JActionFrame extends JFrame {
 	final static String GET_ALL_BRAND_BY_CID = "Get Brand by CID";
 	final static String GET_CLOTHING_BY_ID = "Get Clothing by CID";
 	
-	enum ActionType{
-		insert, delete, update, search
-	}
-	
-	private ActionType actionType; 
-	
 	ArrayList<JDataButton> pageButtons; 
 	Database database; 
+	JPanel buttonsPanel;
 	
 	public JActionFrame(ActionType at, String title, Database db) {
-	
+		
 		super(title);
 		this.database = db; 
 		pageButtons = new ArrayList<JDataButton>(); 
-		
-		this.actionType = at; 
-		setUpFrame(); 
+		setUpFrame(at); 
 	}
 	
-	private void setUpFrame() {
+	private void setUpFrame(ActionType at) {
 		
 		JPanel p = new JPanel();
-		JPanel buttonsPanel = new JPanel();
+		buttonsPanel = new JPanel();
 		buttonsPanel.setLayout(new BoxLayout(buttonsPanel, BoxLayout.PAGE_AXIS)); 
 		
 		Border padding = BorderFactory.createEmptyBorder(10, 40, 10, 40);
@@ -98,7 +70,7 @@ class JActionFrame extends JFrame {
 		this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		this.setLocationRelativeTo(null);  
 
-		loadPageOptionbuttons(buttonsPanel); 
+		loadPageOptionbuttons(at); 
 
 		
 		this.add(p, BorderLayout.NORTH); 
@@ -114,70 +86,112 @@ class JActionFrame extends JFrame {
 	 * 
 	 * @return
 	 */
-	private void loadPageOptionbuttons(JPanel buttonsPanel) {
+	private void loadPageOptionbuttons(ActionType at) {
 		
-		if(this.actionType==ActionType.search)
-			loadPageButtonsAsSelect(buttonsPanel); 
-		else
-			loadPageButtonsAsDDL(buttonsPanel); 
-		
+		// TODO - refactor to not do a switch statement here
+		switch(at) {
+		case search:
+			loadPageButtonsAsSelect(); 
+			break;
+		case update: 
+			loadPageButtonsAsDDL(at); 
+			break; 
+		case insert: 
+			loadPageButtonsAsDDL(at);
+		default:
+			break; 
+		}
 	}
 	
 
 
-	private ArrayList<JDataButton> loadPageButtonsAsDDL(JPanel buttonsPanel) {
+	private ArrayList<JDataButton> loadPageButtonsAsDDL(ActionType at) {
 		ArrayList<JDataButton> buttons = new ArrayList<JDataButton>();
 		
-		//buttonsPanel.add(new JDataButton(OWNER, ActionOption.owner)); 
-		//buttonsPanel.add( new JDataButton(CLOTHING, ActionOption.clothing));
-		//pageButtons.add(new JDataButton(BRAND, ActionOption.brand)); 
-		//buttonsPanel.add(new JDataButton(COLOR, ActionOption.color)); 
-		//buttonsPanel.add(new JDataButton(ITEM, ActionOption.item)); 
-		//buttonsPanel.add(new JDataButton(OWNS, ActionOption.owns));  
+		loadButtonWithDDLOption(QueryStatements.OWNER_TABLE, OWNER, at);
+		loadButtonWithDDLOption(QueryStatements.BRAND_TABLE, BRAND, at);
+		loadButtonWithDDLOption(QueryStatements.CLOTHING_TABLE, CLOTHING, at);
+		loadButtonWithDDLOption(QueryStatements.COLOR_TABLE, COLOR, at);
+		loadButtonWithDDLOption(QueryStatements.ITEM_TABLE, ITEM, at);
 	
 		return buttons; 
 	}
 
 	// TODO - write this 
-	private ArrayList<JDataButton> loadPageButtonsAsSelect(JPanel buttonsPanel) {
+	private ArrayList<JDataButton> loadPageButtonsAsSelect() {
 		
 		ArrayList<JDataButton> buttons = new ArrayList<JDataButton>();
 		
 		
-		initializeAndLoadDataButton(buttonsPanel, GET_OWNERS, Database.SELECT_ALL_CLOTHING_OWNED); 
-		initializeAndLoadDataButton(buttonsPanel, GET_PANTS, Database.SELECT_ALL_PANTS); 
-		initializeAndLoadDataButton(buttonsPanel, GET_OUTERWEAR, Database.SELECT_ALL_OUTERWEAR); 
-		initializeAndLoadDataButton(buttonsPanel, GET_CLOTHING_BY_WORN, Database.SELECT_ALL_CLOTHING_BY_WORN); 
+		loadButtonWithSearchOption(GET_OWNERS, QueryStatements.SELECT_OWNERS, QueryStatements.OWNER_TABLE, QueryStatements.DELETE_OWNER); 
+		loadButtonWithSearchOption(GET_PANTS, QueryStatements.SELECT_ALL_PANTS, QueryStatements.PANTS_TABLE,  QueryStatements.DELETE_PANTS); 
+		loadButtonWithSearchOption(GET_OUTERWEAR, QueryStatements.SELECT_ALL_OUTERWEAR, QueryStatements.SHIRT_TABLE, QueryStatements.DELETE_SHIRT); 
+		loadButtonWithSearchOption(GET_CLOTHING_BY_WORN, QueryStatements.SELECT_ALL_CLOTHING_BY_WORN, QueryStatements.OUTERWEAR_TABLE, QueryStatements.DELETE_OUTERWEAR); 
 		
-		initalizeAndLoadDataButton(buttonsPanel, GET_ITEM_AT_LOCATION, Database.SELECT_ITEM_WHERE_LOCATION, "shelf no", "slot no"); 
-		initalizeAndLoadDataButton(buttonsPanel, GET_ALL_OWNED, Database.SELECT_ALL_CLOTHING_OWNED); 
-		initalizeAndLoadDataButton(buttonsPanel, GET_ALL_BRAND_BY_CID, Database.SELECT_BRAND_WHERE_CLOTHINGID, "cid"); 
-		initalizeAndLoadDataButton(buttonsPanel, GET_CLOTHING_BY_ID, Database.SELECT_CLOTHING_WHERE_CLOTHINGID, "cid"); 
-		initalizeAndLoadDataButton(buttonsPanel, GET_ALL_NOT_OWNED, Database.SELECT_ALL_CLOTHING_NOT_OWNED); 
+		ArrayList<String> getItemArgs = new ArrayList<String>();
+		
+		getItemArgs.add("shelf no");
+		getItemArgs.add("slot no");
+		loadButtonWithSearchAndWhere(GET_ITEM_AT_LOCATION, QueryStatements.SELECT_ITEM_WHERE_LOCATION, getItemArgs,  QueryStatements.ITEM_TABLE, QueryStatements.DELETE_ITEM); 
+		
+		ArrayList<String> getBrandAgrs = new ArrayList<String>();
+		getBrandAgrs.add("cid");
+		
+		loadButtonWithSearchAndWhere(GET_ALL_BRAND_BY_CID, QueryStatements.SELECT_BRAND_WHERE_CLOTHINGID, getBrandAgrs, QueryStatements.BRAND_TABLE, QueryStatements.DELETE_BRAND); 
+		
+		ArrayList<String> getClothingArgs = new ArrayList<String>();
+		getBrandAgrs.add("cid");
+		loadButtonWithSearchAndWhere(GET_CLOTHING_BY_ID, QueryStatements.SELECT_CLOTHING_WHERE_CLOTHINGID, getClothingArgs, QueryStatements.CLOTHING_TABLE, QueryStatements.DELETE_CLOTHING); 
+		
+		loadButtonWithSearchOption(GET_ALL_NOT_OWNED, QueryStatements.SELECT_ALL_CLOTHING_NOT_OWNED, QueryStatements.CLOTHING_TABLE, QueryStatements.DELETE_CLOTHING); 
 		
 		return buttons; 
 	}
 	
-	private void initalizeAndLoadDataButton( JPanel buttonsPanel, String buttonText, String databaseQuery, String... tf_texts) {
+	/**
+	 * sets up 
+	 * @param tableName
+	 * @param buttonText
+	 * @param actionType
+	 */
+	private void loadButtonWithDDLOption(String tableName, String buttonText, ActionType actionType) {
+		
+		DDLOption option = new DDLOption(this.database, tableName, actionType); 
+		JDataButton button = new JDataButton(buttonText, option); 
+		this.buttonsPanel.add(button); 
+		
+		this.pageButtons.add(button);
+	}
+	
+	/**
+	 * sets up a SearchOption along with necessary references for textfield arguments to 
+	 * @param buttonText
+	 * @param databaseQuery
+	 * @param tf_texts
+	 */
+	private void loadButtonWithSearchAndWhere(String buttonText, String databaseQuery, ArrayList<String> textFieldPlaceHolderTexts, String tableName, String ddl_deleteQuery) {
 		JPanel searchItemsHorizontalPanel = new JPanel(new FlowLayout()); 
 
-		ArrayList<Object> textFieldRefs = new ArrayList<Object>(); 
+		ArrayList<Object> whereTextFields = new ArrayList<Object>();
 		
-		SearchOption so = new SearchOption(this.database, databaseQuery, textFieldRefs); 
+		for(int i = 0; i < textFieldPlaceHolderTexts.size(); i++)
+			foo(textFieldPlaceHolderTexts.get(i), whereTextFields, searchItemsHorizontalPanel); 
+		
+		SearchOption so = new SearchOption(this.database, databaseQuery, whereTextFields, tableName, ddl_deleteQuery); 
 		JDataButton goButton = new JDataButton(buttonText, so); 
-		searchItemsHorizontalPanel.add(goButton); 
 		
-		for (String text : tf_texts)
-			foo(text, textFieldRefs, searchItemsHorizontalPanel); 
 
 		
-		buttonsPanel.add(searchItemsHorizontalPanel); 
+		searchItemsHorizontalPanel.add(goButton); 
+		
+		
+		this.buttonsPanel.add(searchItemsHorizontalPanel); 
 		
 		pageButtons.add(goButton); 
 	}
 
-	private void initializeAndLoadDataButton(JPanel buttonsPanel, String buttonText, String databaseQuery) {
-		JDataButton goButton = new JDataButton(buttonText, new SearchOption(this.database, databaseQuery, null)); 
+	private void loadButtonWithSearchOption(String buttonText, String selectQuery, String tableName, String ddl_deleteQuery) {
+		JDataButton goButton = new JDataButton(buttonText, new SearchOption(this.database, selectQuery, null, tableName, ddl_deleteQuery)); 
 		buttonsPanel.add(goButton); 
 		pageButtons.add(goButton);
 	}

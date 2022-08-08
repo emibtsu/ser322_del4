@@ -11,6 +11,7 @@ import java.util.ArrayList;
 import javax.swing.*;
 
 import action.*;
+import del4.Database.ActionType;
 
 public class Closet {
 
@@ -130,10 +131,10 @@ public class Closet {
 		prompt.setText("Would you like to search, insert, update, delete?");
 		p.add(prompt);
 
-		JDataButton searchButton = new JDataButton(JActionFrame.SEARCH, JActionFrame.ActionType.search);
-		JDataButton insertButton = new JDataButton(JActionFrame.INSERT, JActionFrame.ActionType.insert); 
-		JDataButton deleteButton = new JDataButton(JActionFrame.DELETE, JActionFrame.ActionType.delete); 
-		JDataButton updateButton = new JDataButton(JActionFrame.UPDATE, JActionFrame.ActionType.update); 
+		JDataButton searchButton = new JDataButton(JActionFrame.SEARCH, ActionType.search);
+		JDataButton insertButton = new JDataButton(JActionFrame.INSERT, ActionType.insert); 
+		JDataButton deleteButton = new JDataButton(JActionFrame.DELETE, ActionType.delete); 
+		JDataButton updateButton = new JDataButton(JActionFrame.UPDATE, ActionType.update); 
 
 		searchButton.addActionListener(e -> handleOptionButtonSelected(searchButton.getData()));
 		insertButton.addActionListener(e -> handleOptionButtonSelected(insertButton.getData()));
@@ -164,19 +165,19 @@ public class Closet {
 
 		JActionFrame actionFrame = null; 
 
-		switch ((JActionFrame.ActionType)data.get(0)) {
+		switch ((ActionType)data.get(0)) {
 		case search: 
-			actionFrame = new JActionFrame(JActionFrame.ActionType.search ,"search", this.database); 
+			actionFrame = new JActionFrame(ActionType.search ,"search", this.database); 
 			break;
 		case insert: 
-			actionFrame = new JActionFrame(JActionFrame.ActionType.insert ,"insert", this.database); 
+			actionFrame = new JActionFrame(ActionType.insert ,"insert", this.database); 
 			break; 
 		case delete: 
-			actionFrame = new JActionFrame(JActionFrame.ActionType.delete ,"delete", this.database);
+			actionFrame = new JActionFrame(ActionType.delete ,"delete", this.database);
 			break;
 		case update: 
-			actionFrame = new JActionFrame(JActionFrame.ActionType.update ,"update", this.database);
-			break;
+			actionFrame = new JActionFrame(ActionType.update ,"update", this.database);
+			break; 
 		default:
 			break;
 		}
@@ -186,6 +187,7 @@ public class Closet {
 
 		if(actionFrame!=null)
 			actionFrame.setVisible(true);
+		
 	}
 
 	/**
@@ -213,45 +215,88 @@ public class Closet {
 		} catch (SQLException e) {
 			e.printStackTrace();
 		} 
+		
+		if(actionOption instanceof DDLOption)
+			beginDDLSetUp((DDLOption)actionOption); 
+		
+		if(actionOption instanceof SearchOption)
+			beginSearchSetUp((SearchOption) actionOption);
+		
 		frame.setVisible(true);
-	
 	}
 	
 
-	/**
-	 * Given a DDL option display a JFormFrame sculpted to the corresponding option
-	 * @param ddlOption
-	 * @throws SQLException
-	 */
-	private void displayDDLOptionFrame(DDLOption ddlOption) throws SQLException {
-		DatabaseMetaData metaData; 
+	private void beginSearchSetUp(SearchOption option) {
+		
+		ArrayList<JDataButton> editButtons = option.listPanel.editButtons;
+		ArrayList<JDataButton> deleteButtons = option.listPanel.deleteButtons;
+		
+		for(int i = 0; i < editButtons.size(); i++) 
+			setAllEditButtonHandlers(editButtons.get(i));
+		
+		for(int i = 0; i < deleteButtons.size(); i++) 
+			setAllDeleteButtonHandlers(deleteButtons.get(i), option);
+		
+	}
+	
+	private void setAllDeleteButtonHandlers(JDataButton button, SearchOption option) {
+		ArrayList<Object> data = button.getData(); 
+		button.addActionListener(e->handleDeleteButtonPressed(data, option));
+		
+	}
+
+	private void setAllEditButtonHandlers(JDataButton button) {
+		
+		ArrayList<Object> data = button.getData(); 
+		button.addActionListener(e->handleEditButtonPressed(data));
+	}
+
+	private void handleEditButtonPressed(ArrayList<Object> data) {
+		
+		for(int i = 0; i < data.size(); i++)
+			System.out.println("UPDATE WHERE->"+data.get(i)); 
+	}
+	
+	private Object handleDeleteButtonPressed(ArrayList<Object> whereClauseArgs, SearchOption option) {
+		
+		
+		// TODO remove this 
+		for(int i = 0; i < whereClauseArgs.size(); i++)
+			System.out.println("stored data->"+whereClauseArgs);
+		option.delete(whereClauseArgs);
+		
+
+
+		return null;
+	}
+
+	private void beginDDLSetUp(DDLOption option) {
+		option.getFormFrame().goButton.addActionListener(e->handleGoDDLButton(option));
+	}
+
+	private void handleGoDDLButton(DDLOption option) {
 		try {
-			metaData = database.getConnection().getMetaData();
+			
+			executeDDL(option.runQuery());
 
-			ResultSet rs = metaData.getColumns("closet", null, ddlOption.getTableName(), null);
-
-			ArrayList<String> args = new ArrayList<String>(); 
-
-			while (rs.next())
-				args.add(rs.getString("COLUMN_NAME"));
-
-			JFormFrame formFrame = new JFormFrame(args); 
-
-			formFrame.setVisible(true);
-
+			
 		} catch (SQLException e) {
-			showExceptionMessage("trouble getting meta data for database", e); 
+			showExceptionMessage("trouble with ddl", e);
 		} 
 	}
-	
-
-
 
 	public static void showExceptionMessage(String msg, Exception e){
 		JOptionPane.showMessageDialog(null, msg, "Exception has occured: " + msg + "see stack trace for more detail", JOptionPane.INFORMATION_MESSAGE);
 
 		if(e!=null)
 			e.printStackTrace();
+	}
+	
+	private void executeDDL(PreparedStatement statement) throws SQLException {
+		if(statement.executeUpdate()>0)
+			System.out.println("SUCCESS");
+		else
+			System.out.println("could not complete ddl"); 
 	}
 
 
