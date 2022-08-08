@@ -36,23 +36,22 @@ WINDOWS: java -cp .\bin;.\libs\mysql-connector-java-8.0.29.jar del4/Closet
 
 ## Individual Contributions
 ### Deliverable 1
-Emily: Create drive for team to work in, make initial draft with all the requirements/entities, communicate with team with deadlines and draft up ideas for potentiasl domains, create initial document for team to collab in
+Emily: Create drive for team to work in, make initial draft with all the requirements/entities, communicate with team with deadlines and draft up ideas for potential domains, create initial document for team to collab in
 
 Paul:
 
 ### Deliverable 2
-Emily: Make doc for team to collab on diagram, draft initial ER diagram, draft inital entities and relationships, communicate with team
+Emily: Make doc for team to collab on diagram, draft initial ER diagram, draft inital entities and relationships, communicate with team, turn in final deliverable
 
 Paul:
 
 ### Deliverable 3
-Emily: Make video and readme, help test create statements and add referential triggers, make insert data, draft inital select statements, commnunicate with team on deadlines and requirements
+Emily: Make video and readme, help test create statements and add referential triggers, make insert data, draft inital select statements, commnunicate with team on deadlines and requirements, turn in final deliverable
 
 Paul:
 
 ### Deliverable 4
-Emily: Help with adding labels to GUI (Paul did most GUI btw), add all select statements from previous del and add corresponding methods, communicate with team, spearhead readme edits, create github repo to work in, fill out readme
-code/test application on windows
+Emily: Help with adding labels to GUI (Paul did most GUI btw), add all select statements from previous del and add corresponding methods, communicate with team, spearhead readme edits, create github repo to work in, fill out readme code/test application on windows, help create script for video, film video
 
 Paul:
 
@@ -67,8 +66,11 @@ Paul:
 ## Structure of code
 
 UI - GUI using Java Swing
+
 JDBC Driver- runs with mysql-connector-java-8.0.29.jar, located in libs directory
+
 Middlewear- SQL DB Server running with JDBC
+
 DB - Run in mySQL workbench
 
 ## Description of Application Activities
