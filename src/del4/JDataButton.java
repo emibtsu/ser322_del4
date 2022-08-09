@@ -16,7 +16,8 @@ import javax.swing.JButton;
 	 *
 	 */
 public class JDataButton extends JButton{
-	private ArrayList<Object> data;  
+	private ArrayList<Object> genericData;  
+	private ArrayList<String> stringData; 
 
 	/**
 	 * Constructor - takes that text that appears on the button and any data to be saved 
@@ -28,11 +29,21 @@ public class JDataButton extends JButton{
 	public JDataButton(String text,  ArrayList<Object> specialData) {
 		
 		this.setText(text);
-		this.data = specialData; 
+		this.genericData = specialData; 
 		
 		beautify(); 
 	}
 	
+	
+public JDataButton(String text,  ArrayList<Object> specialData, ArrayList<String> stringData) {
+		
+		this.setText(text);
+		this.genericData = specialData; 
+		
+		this.stringData = stringData; 
+		
+		beautify(); 
+	}
 	
 	 /**
 	 * Constructor - takes that text that appears on the button and any data to be saved 
@@ -45,8 +56,8 @@ public class JDataButton extends JButton{
 	 */
 	public JDataButton(String text,  Object specialData) {
 	
-		this.data = new ArrayList<Object>(); 
-		data.add(specialData); 
+		this.genericData = new ArrayList<Object>(); 
+		genericData.add(specialData); 
 		
 		this.setText(text);
 		beautify(); 
@@ -59,11 +70,15 @@ public class JDataButton extends JButton{
 	 * @return
 	 */
 	public Object getDataSingle() {
-		return this.data.get(0);
+		return this.genericData.get(0);
 	}
 	
-	public ArrayList<Object> getData() {
-		return this.data; 
+	public ArrayList<Object> getGeneralizedData() {
+		return this.genericData; 
+	}
+	
+	public ArrayList<String> getStringData(){
+		return this.stringData;
 	}
 	
 	/**

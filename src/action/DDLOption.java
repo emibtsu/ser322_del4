@@ -17,8 +17,12 @@ public class DDLOption implements IActionOption{
 	private String tableName;
 	private JFormFrame formFrame;
 	private ActionType actionType;
-	
+
+	/**
+	 * constants
+	 */
 	final static String GO_BUTTON_TEXT = "go"; 
+
 	
 	public DDLOption(Database database, String tableName, ActionType actionType){
 		
@@ -50,7 +54,7 @@ public class DDLOption implements IActionOption{
 	@Override
 	public PreparedStatement runQuery() throws SQLException {
 		String queryString = this.database.getDDLStatementFor(this.tableName, actionType);
-		return this.database.runQuery(queryString, formFrame.getTextFieldArgs()); 
+		return this.database.runQuery(queryString, formFrame.getInputArgs()); 
 		
 	}
 
@@ -70,7 +74,7 @@ public class DDLOption implements IActionOption{
 			while (rs.next())
 				args.add(rs.getString("COLUMN_NAME"));
 
-			formFrame = new JFormFrame(args, tableName); 
+			formFrame = new JFormFrame(args, tableName, null); 
 
 		} catch (SQLException e) {
 			e.printStackTrace();

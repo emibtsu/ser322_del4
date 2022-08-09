@@ -15,6 +15,7 @@ import javax.swing.Icon;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.SwingConstants;
 
@@ -31,10 +32,15 @@ public class JListPanel extends JPanel{
 	public ResultSet resultSet; 
 	public ArrayList<Integer>specialColumns; 
 	public Table table; 
-	
 	public ArrayList<JDataButton> editButtons; 
 	public ArrayList<JDataButton> deleteButtons; 
+	public ArrayList<ArrayList<String>> all_tupleData; 
+	private int resultCount; 
+
 	
+	/**
+	 * constants
+	 */
 	final static String UPDATE_BUTTON_IMG_PATH = "img/edit.png"; 
 	final static String DELETE_BUTTON_IMG_PATH = "img/delete.png"; 
 	/**
@@ -45,26 +51,66 @@ public class JListPanel extends JPanel{
 	 * @param arrayList - list of objects that inherit from clothing
 	 * @throws SQLException 
 	 */
-	public JListPanel(PreparedStatement statement, Table table) throws SQLException {
+	public JListPanel(PreparedStatement statement, Table table, Boolean enableEdit) throws SQLException {
 
 		beautify(); 
 		 
+		all_tupleData = new ArrayList<ArrayList<String>>();
+		
 		editButtons = new ArrayList<JDataButton>();
 		deleteButtons = new ArrayList<JDataButton>();
-		
 		
 		this.table = table; 
 		
 		resultSet = statement.executeQuery(); 
 
-		while(this.resultSet.next())
-			addPanel(this.resultSet); 
+		String headerLabelText = "";
+		
+		for(int i = 0; i < resultSet.getMetaData().getColumnCount(); i++)
+			headerLabelText += resultSet.getMetaData().getColumnName(i+1)+"\t";
+		
+		this.add(CustomSwing.getCustomlabel(headerLabelText, 11, SwingConstants.LEFT, Color.gray));
+		
+	
+		while(this.resultSet.next()) {
+			resultCount++;
+			addPanel(this.resultSet, enableEdit); 
+		}
+				
 		
 		closeDatabaseComponents();
 			
 	}
 	
-
+	/**
+	 * getters and setters
+	 */
+	public int getResultCount(){
+		return resultCount;
+	}
+	
+	/**
+	 * saves the results of every tuple being loaded into the list panel
+	 * @param rs
+	 */
+	private ArrayList<String> saveAllTupleData(ResultSet rs) {
+		
+		ArrayList<String> tupleData = new ArrayList<String>();
+		
+		try {
+			for(int i = 0; i < rs.getMetaData().getColumnCount(); i++)		
+					tupleData.add(rs.getString(i+1));	
+			
+			all_tupleData.add(tupleData); 
+					
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		return tupleData; 
+	}
+	
 	/**
 	 * just make things look a little nicer
 	 */
@@ -86,33 +132,52 @@ public class JListPanel extends JPanel{
 	 * @param clothing
 	 * @throws SQLException 
 	 */
-	private void addPanel(ResultSet rs) throws SQLException {
+	private void addPanel(ResultSet rs, Boolean enableEdit) throws SQLException {
 
 		JPanel containerPanel = new  JPanel(); 
 		containerPanel.setLayout(new FlowLayout());
 		
 		JLabel label = addResultSetLabel(rs);  
 		
+		
 		ArrayList<Object> savedData = getSpecialDataFor(rs);
 		
-		JDataButton editButton = new JDataButton("", savedData); 
-		Icon icon1 = new ImageIcon(UPDATE_BUTTON_IMG_PATH);
-		editButton.setIcon(icon1);
-		
+
+	
+
 		JDataButton deleteButton = new JDataButton("", savedData); 
 		Icon icon2 = new ImageIcon(DELETE_BUTTON_IMG_PATH);
 		deleteButton.setIcon(icon2);
 	
 		containerPanel.add(label);
-		containerPanel.add(editButton);
+
 		containerPanel.add(deleteButton); 
 		
-		editButtons.add(editButton); 
+		if(enableEdit) {
+			containerPanel.add(setupEditButton(savedData));
+		}
+		
 		deleteButtons.add(deleteButton); 
 		
 		this.add(containerPanel); 
 	}
 	
+	private JDataButton setupEditButton(ArrayList<Object> savedData) {
+		
+		ArrayList<String> tupleStringData = saveAllTupleData(resultSet);
+		
+		JDataButton editButton = new JDataButton("", savedData, tupleStringData); 
+		
+		Icon icon1 = new ImageIcon(UPDATE_BUTTON_IMG_PATH);
+		editButton.setIcon(icon1);
+		
+
+		
+		editButtons.add(editButton); 
+		
+		return editButton;
+		
+	}
 
 	private ArrayList<Object> getSpecialDataFor(ResultSet rs) throws SQLException {
 		
@@ -123,7 +188,7 @@ public class JListPanel extends JPanel{
 			
 
 		for(int k = 0; k < table.getPrimaryKeys().size(); k++) {
-			if(table.primaryKeys.get(k).equals(rs.getMetaData().getColumnName(i+1))) {
+			if(table.getPrimaryKeys().get(k).equals(rs.getMetaData().getColumnName(i+1))) {
 				data.add(memberString); 
 			}
 		}
@@ -157,7 +222,7 @@ public class JListPanel extends JPanel{
 		
 		String labelText = parseResultSet(rs); 
 		
-		JLabel label = CustomSwing.getCustomlabel(labelText, 14, SwingConstants.LEFT, Color.gray); 
+		JLabel label = CustomSwing.getCustomlabel(labelText, 12, SwingConstants.LEFT, Color.gray); 
 		
 		return label; 
 	}

@@ -22,8 +22,10 @@ public class Closet {
 
 	private static JTextField uriTextField; 
 	private static JTextField usernameTextField; 
-	private static JTextField passwordTextField; 
+	private static JPasswordField passwordTextField; 
 	private static JTextField driverTextField;
+	
+	private JPanel referencePanel; 
 
 	private Database database; 
 	private JFrame mainFrame; 
@@ -57,7 +59,7 @@ public class Closet {
 		JLabel usernameLabel = new JLabel("Username");
 		usernameTextField.setText("root");
 		// textfield
-		passwordTextField =  CustomSwing.getCustomTextField("password");
+		passwordTextField =  new JPasswordField("");
 		JLabel passwordLabel = new JLabel("Password");
 
 		// textfield
@@ -65,8 +67,8 @@ public class Closet {
 		JLabel driverLabel = new JLabel("Driver");
 		driverTextField.setText("com.mysql.cj.jdbc.Driver");
 		// panel 
-		JImagePanel panel = new JImagePanel(IMG_LOGIN_PATH); 
-		panel.setLayout(new BoxLayout(panel, BoxLayout.PAGE_AXIS));
+		JImagePanel loginPanel = new JImagePanel(IMG_LOGIN_PATH); 
+		loginPanel.setLayout(new BoxLayout(loginPanel, BoxLayout.PAGE_AXIS));
 		// button 
 		JButton confirmButton = new JButton(BUTTON_LOGIN); 
 		confirmButton.setFont(new Font("Arial", Font.BOLD, 14));
@@ -77,23 +79,25 @@ public class Closet {
 		int left = 70; 
 		int bottom = 25; 
 		int right = 70; 
-		panel.setBorder(BorderFactory.createEmptyBorder(top, left, bottom, right));
+		loginPanel.setBorder(BorderFactory.createEmptyBorder(top, left, bottom, right));
 
-		mainFrame.add(panel); 
-		panel.add(headerLabel); 
-		panel.add(uriLabel);
-		panel.add(uriTextField); 
-		panel.add(usernameLabel);
-		panel.add(usernameTextField); 
-		panel.add(passwordLabel);
-		panel.add(passwordTextField); 
-		panel.add(driverLabel);
-		panel.add(driverTextField); 
-		panel.add(confirmButton); 
+		mainFrame.add(loginPanel); 
+		loginPanel.add(headerLabel); 
+		loginPanel.add(uriLabel);
+		loginPanel.add(uriTextField); 
+		loginPanel.add(usernameLabel);
+		loginPanel.add(usernameTextField); 
+		loginPanel.add(passwordLabel);
+		loginPanel.add(passwordTextField); 
+		loginPanel.add(driverLabel);
+		loginPanel.add(driverTextField); 
+		loginPanel.add(confirmButton); 
 
 
 
-		panel.setSize(500, 500); 
+		loginPanel.setSize(500, 500); 
+		
+		setMainFrameRefPanel(loginPanel); 
 
 		mainFrame.setLocationRelativeTo(null); 
 		mainFrame.setResizable(false);
@@ -104,49 +108,55 @@ public class Closet {
 	}
 
 
+	private void setMainFrameRefPanel(JPanel ref) {
+		if(referencePanel!=null)
+			mainFrame.remove(referencePanel);
+
+		mainFrame.add(ref); 
+	}
+
 	public void handleLoginButtonPressed(){
 
 		// establish connection using a database object 
 		String uri =  uriTextField.getText(); 
 		String username = usernameTextField.getText(); 
+		@SuppressWarnings("deprecation")
 		String password = passwordTextField.getText();
-		String driver_cname = driverTextField.getText();  
+		String driver_cname = driverTextField.getText(); 
 
 		// initialize global database object
 		database = new Database(uri, username, password, driver_cname); 
-		promptType(database); 
+		
+		if(database.getConnection()==null) 
+			 JOptionPane.showMessageDialog(null, "Could not log in.\n\nPlease check provided info\nand stack trace.", "Login error", JOptionPane.INFORMATION_MESSAGE);
+		
+		else
+			showPromptFrame(database); 
 	}
 
 
-	private void promptType(Database database) {
+	private void showPromptFrame(Database database) {
 
 		// initialize frame
 		JFrame frame = new JFrame("Database options"); 
-		JPanel p = new JPanel();
+		JPanel promptPanel = new JPanel();
 		JPanel buttons = new JPanel();
-		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		frame.setLocationRelativeTo(null);  
 
 		JLabel prompt = new JLabel("Prompt");
-		prompt.setText("Would you like to search, insert, update, delete?");
-		p.add(prompt);
+		prompt.setText("Choose Option");
+		promptPanel.add(prompt);
 
 		JDataButton searchButton = new JDataButton(JActionFrame.SEARCH, ActionType.search);
 		JDataButton insertButton = new JDataButton(JActionFrame.INSERT, ActionType.insert); 
-		JDataButton deleteButton = new JDataButton(JActionFrame.DELETE, ActionType.delete); 
-		JDataButton updateButton = new JDataButton(JActionFrame.UPDATE, ActionType.update); 
 
-		searchButton.addActionListener(e -> handleOptionButtonSelected(searchButton.getData()));
-		insertButton.addActionListener(e -> handleOptionButtonSelected(insertButton.getData()));
-		deleteButton.addActionListener(e -> handleOptionButtonSelected(deleteButton.getData()));
-		updateButton.addActionListener(e -> handleOptionButtonSelected(updateButton.getData()));
+		searchButton.addActionListener(e -> handleOptionButtonSelected(searchButton.getGeneralizedData()));
+		insertButton.addActionListener(e -> handleOptionButtonSelected(insertButton.getGeneralizedData()));
 
 		buttons.add(searchButton);
 		buttons.add(insertButton);
-		buttons.add(updateButton);
-		buttons.add(deleteButton);
 
-		frame.add(p, BorderLayout.NORTH);
+		frame.add(promptPanel, BorderLayout.NORTH);
 		frame.add(buttons, BorderLayout.SOUTH);
 
 		frame.setSize(new Dimension(320,64));
@@ -154,6 +164,8 @@ public class Closet {
 		frame.pack(); 
 
 		frame.setVisible(true); 
+		
+		setMainFrameRefPanel(promptPanel); 
 
 
 	}
@@ -171,15 +183,9 @@ public class Closet {
 			break;
 		case insert: 
 			actionFrame = new JActionFrame(ActionType.insert ,"insert", this.database); 
-			break; 
-		case delete: 
-			actionFrame = new JActionFrame(ActionType.delete ,"delete", this.database);
 			break;
-		case update: 
-			actionFrame = new JActionFrame(ActionType.update ,"update", this.database);
-			break; 
 		default:
-			break;
+			break; 
 		}
 
 
@@ -222,7 +228,8 @@ public class Closet {
 		if(actionOption instanceof SearchOption)
 			beginSearchSetUp((SearchOption) actionOption);
 		
-		frame.setVisible(true);
+		if(frame!=null)
+			frame.setVisible(true);
 	}
 	
 
@@ -232,7 +239,7 @@ public class Closet {
 		ArrayList<JDataButton> deleteButtons = option.listPanel.deleteButtons;
 		
 		for(int i = 0; i < editButtons.size(); i++) 
-			setAllEditButtonHandlers(editButtons.get(i));
+			setAllEditButtonHandlers(editButtons.get(i), option);
 		
 		for(int i = 0; i < deleteButtons.size(); i++) 
 			setAllDeleteButtonHandlers(deleteButtons.get(i), option);
@@ -240,53 +247,36 @@ public class Closet {
 	}
 	
 	private void setAllDeleteButtonHandlers(JDataButton button, SearchOption option) {
-		ArrayList<Object> data = button.getData(); 
-		button.addActionListener(e->handleDeleteButtonPressed(data, option));
+		ArrayList<Object> whereClauseArgs = button.getGeneralizedData(); 
+		button.addActionListener(e->option.delete(whereClauseArgs));
 		
 	}
 
-	private void setAllEditButtonHandlers(JDataButton button) {
-		
-		ArrayList<Object> data = button.getData(); 
-		button.addActionListener(e->handleEditButtonPressed(data));
+	private void setAllEditButtonHandlers(JDataButton button, SearchOption option) {
+		button.addActionListener(e->option.edit(button));
 	}
 
-	private void handleEditButtonPressed(ArrayList<Object> data) {
-		
-		for(int i = 0; i < data.size(); i++)
-			System.out.println("UPDATE WHERE->"+data.get(i)); 
-	}
-	
-	private Object handleDeleteButtonPressed(ArrayList<Object> whereClauseArgs, SearchOption option) {
-		
-		
-		// TODO remove this 
-		for(int i = 0; i < whereClauseArgs.size(); i++)
-			System.out.println("stored data->"+whereClauseArgs);
-		option.delete(whereClauseArgs);
-		
-
-
-		return null;
-	}
 
 	private void beginDDLSetUp(DDLOption option) {
-		option.getFormFrame().goButton.addActionListener(e->handleGoDDLButton(option));
+		option.getFormFrame().commitDDLButton.addActionListener(e->handleGoDDLButton(option));
 	}
 
 	private void handleGoDDLButton(DDLOption option) {
+		
+		option.getFormFrame().dispose();
+		
 		try {
 			
 			executeDDL(option.runQuery());
 
 			
 		} catch (SQLException e) {
-			showExceptionMessage("trouble with ddl", e);
+			showExceptionMessage("Data could not be modified/inserted", e);
 		} 
 	}
 
 	public static void showExceptionMessage(String msg, Exception e){
-		JOptionPane.showMessageDialog(null, msg, "Exception has occured: " + msg + "see stack trace for more detail", JOptionPane.INFORMATION_MESSAGE);
+		JOptionPane.showMessageDialog(null, msg + "\n" + e.getLocalizedMessage() + "\nsee stack trace for more detail", "Exception has occured: " , JOptionPane.INFORMATION_MESSAGE);
 
 		if(e!=null)
 			e.printStackTrace();
@@ -294,9 +284,9 @@ public class Closet {
 	
 	private void executeDDL(PreparedStatement statement) throws SQLException {
 		if(statement.executeUpdate()>0)
-			System.out.println("SUCCESS");
-		else
-			System.out.println("could not complete ddl"); 
+			JOptionPane.showMessageDialog(null, "Success!", "" , JOptionPane.INFORMATION_MESSAGE);
+
+		
 	}
 
 

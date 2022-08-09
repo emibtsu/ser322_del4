@@ -21,6 +21,7 @@ public class Database{
 	
 	public Database(String uri, String username, String password, String driver_cname) {
 		this.connection = establishConnection(uri, username, password, driver_cname); 
+		
 	}
 	
 	// geters and setters 
@@ -28,7 +29,6 @@ public class Database{
 		return this.connection; 
 	}
    
-
     
     /**
      * runs a query based on in file constant
@@ -39,8 +39,6 @@ public class Database{
     public PreparedStatement runQuery(String query, ArrayList<Object> args) throws SQLException{
     	
     	PreparedStatement s = null;  
-    	
-    	System.out.println("TEST"); 
 	
 		s = connection.prepareStatement(query); 
 		
@@ -86,7 +84,6 @@ public class Database{
             }catch(SQLException e) {
                 e.printStackTrace();
             }catch (ClassNotFoundException e) {
-                System.out.println("class not found "+driver_cname);
                 System.exit(1);
             }
             
@@ -131,7 +128,7 @@ public class Database{
     	ArrayList<Object> columns = new ArrayList<Object>(); 
     	
     	switch(query) {
-    	case QueryStatements.SELECT_OWNERS:
+    	case Const.SELECT_OWNERS:
     		columns.add(1); 
     		break; 
     	}
@@ -148,20 +145,20 @@ public class Database{
     	String query = ""; 
     	
     	switch(tableName) {
-    	case QueryStatements.OWNER_TABLE:
-    		query = QueryStatements.INSERT_OWNER; 
+    	case Const.OWNER_TABLE:
+    		query = Const.INSERT_OWNER; 
     		break;
-    	case QueryStatements.BRAND_TABLE: 
-    		query = QueryStatements.INSERT_BRAND; 
+    	case Const.BRAND_TABLE: 
+    		query = Const.INSERT_BRAND; 
     		break;
-    	case QueryStatements.CLOTHING_TABLE: 
-    		query = QueryStatements.INSERT_CLOTHING; 
+    	case Const.CLOTHING_TABLE: 
+    		query = Const.INSERT_CLOTHING; 
     		break;
-    	case QueryStatements.COLOR_TABLE: 
-    		query = QueryStatements.INSERT_COLOR; 
+    	case Const.COLOR_TABLE: 
+    		query = Const.INSERT_COLOR; 
     		break;
-    	case QueryStatements.ITEM_TABLE: 
-    		query = QueryStatements.INSERT_ITEM;
+    	case Const.ITEM_TABLE: 
+    		query = Const.INSERT_ITEM;
     		break;
     	}
     	
@@ -178,19 +175,22 @@ public class Database{
     	String query = ""; 
     	
     	switch(tableName) {
-    	case QueryStatements.OWNER_TABLE:
-    		query = QueryStatements.UPDATE_OWNER; 
+    	case Const.OWNER_TABLE:
+    		query = Const.UPDATE_OWNER; 
     		break;
-    	case QueryStatements.BRAND_TABLE: 
-    		query = QueryStatements.UPDATE_BRAND; 
+    	case Const.BRAND_TABLE: 
+    		query = Const.UPDATE_BRAND; 
     		break;
-    	case QueryStatements.CLOTHING_TABLE: 
-    		query = QueryStatements.UPDATE_CLOTHING; 
+    	case Const.CLOTHING_TABLE: 
+    		query = Const.UPDATE_CLOTHING; 
     		break;
-    	case QueryStatements.COLOR_TABLE: 
-    		query = QueryStatements.UPDATE_COLOR; 
-    	case QueryStatements.ITEM_TABLE: 
-    		query = QueryStatements.UPDATE_ITEM;
+    	case Const.COLOR_TABLE: 
+    		query = Const.UPDATE_COLOR; 
+    	case Const.ITEM_TABLE: 
+    		query = Const.UPDATE_ITEM;
+    	case Const.OUTERWEAR_TABLE:
+    		query = Const.UPDATE_OUTERWEAR;
+    		
     	}
     	
     	return query; 
@@ -206,35 +206,35 @@ public class Database{
 		
 		String ddlString=""; 
 		switch(queryString) {
-    	case QueryStatements.SELECT_OWNERS:
-    		ddlString = QueryStatements.DELETE_OWNER;
+    	case Const.SELECT_OWNERS:
+    		ddlString = Const.DELETE_OWNER;
     		break;
-    	case QueryStatements.SELECT_ALL_PANTS: 
-    		ddlString = QueryStatements.DELETE_PANTS; 
+    	case Const.SELECT_ALL_PANTS_OWNED: 
+    		ddlString = Const.DELETE_PANTS; 
     		break;
-      	case QueryStatements.SELECT_ALL_SHIRTS: 
-    		ddlString = QueryStatements.DELETE_SHIRT; 
+      	case Const.SELECT_ALL_SHIRTS_OWNED: 
+    		ddlString = Const.DELETE_SHIRT; 
     		break;
-      	case QueryStatements.SELECT_ALL_OUTERWEAR: 
-    		ddlString = QueryStatements.DELETE_OUTERWEAR; 
+      	case Const.SELECT_ALL_OUTERWEAR_OWNED: 
+    		ddlString = Const.DELETE_OUTERWEAR; 
     		break;
-    	case QueryStatements.SELECT_ALL_CLOTHING_BY_WORN: 
-    		ddlString = QueryStatements.DELETE_CLOTHING;
+    	case Const.SELECT_ALL_CLOTHING_BY_WORN: 
+    		ddlString = Const.DELETE_CLOTHING;
     		break;
-    	case QueryStatements.SELECT_ITEM_WHERE_LOCATION: 
-    		ddlString = QueryStatements.DELETE_ITEM;
+    	case Const.SELECT_ITEM_WHERE_LOCATION: 
+    		ddlString = Const.DELETE_ITEM;
     		break;
-    	case QueryStatements.SELECT_ALL_CLOTHING_OWNED: 
-    		ddlString = QueryStatements.DELETE_CLOTHING;
+    	case Const.SELECT_ALL_CLOTHING_OWNED: 
+    		ddlString = Const.DELETE_CLOTHING;
     		break;
-    	case QueryStatements.SELECT_BRAND_WHERE_CLOTHINGID: 
-    		ddlString = QueryStatements.DELETE_BRAND;
+    	case Const.SELECT_BRAND_WHERE_CLOTHINGID: 
+    		ddlString = Const.DELETE_BRAND;
     		break;
-    	case QueryStatements.SELECT_CLOTHING_WHERE_CLOTHINGID: 
-    		ddlString = QueryStatements.DELETE_CLOTHING;
+    	case Const.SELECT_CLOTHING_WHERE_CLOTHINGID: 
+    		ddlString = Const.DELETE_CLOTHING;
     		break;
-    	case QueryStatements.SELECT_ALL_CLOTHING_NOT_OWNED: 
-    		ddlString = QueryStatements.DELETE_CLOTHING;
+    	case Const.SELECT_ALL_CLOTHING_NOT_OWNED: 
+    		ddlString = Const.DELETE_CLOTHING;
     		break;
     	}
 		
@@ -259,6 +259,15 @@ public class Database{
 		} 
 	
 		return null; 
+	}
+
+	public ArrayList<String> getColumnNamesFor(ResultSet rs) throws SQLException{
+		
+		ArrayList<String> columnNames = new ArrayList<String>();
+		while (rs.next())
+			columnNames.add(rs.getString("COLUMN_NAME"));
+
+		return columnNames;
 	}
 
 

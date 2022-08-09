@@ -1,6 +1,6 @@
 package del4;
 
-public final class QueryStatements {
+public final class Const {
 	public final static String OWNER_TABLE = "owner"; 
 	final static String BRAND_TABLE = "brand"; 
 	final static String CLOTHING_TABLE = "clothing"; 
@@ -14,6 +14,7 @@ public final class QueryStatements {
 	/**
 	 * Selects
 	 */
+	
 	final static String SELECT_OWNERS = "SELECT OID, OFirstName, OMiddleName, OLastName FROM OWNER;";
 	final static String SELECT_SHIRTS_BY_OWNER_BRAND = "SELECT ITEM.SlotNumber, ITEM.ShelfNumber, OFirstName, OMiddleName, OLastName, Brand.BrandName, Type, CLOTHING.Material\n"
 		
@@ -25,29 +26,32 @@ public final class QueryStatements {
 			+ "JOIN SHIRT ON SHIRT.ClothingID = CLOTHING.ClothingID;";
 	
 	    
-    final public static String SELECT_ALL_SHIRTS ="SELECT OFirstName, OMiddleName, OLastName, Brand.BrandName, Type, CLOTHING.Material\n"
-    		+ "FROM OWNER \n"
-    		+ "JOIN OWNS ON OWNER.OID = OWNS.OID\n"
-    		+ "JOIN ITEM ON ITEM.SlotNumber = OWNS.SlotNumber AND ITEM.ShelfNumber = OWNS.ShelfNumber\n"
-    		+ "JOIN CLOTHING ON CLOTHING.ClothingID = ITEM.ClothingID\n"
+    final public static String SELECT_ALL_SHIRTS_OWNED ="SELECT SHIRT.ClothingID, SHIRT.Type, OLastname AS Name, Clothing.Material, BRAND.BrandName, ITEM.Size\n"
+    		+ "FROM OWNS\n"
+    		+ "JOIN OWNER ON OWNS.OID = OWNER.OID\n"
+    		+ "JOIN ITEM ON OWNS.SlotNumber = ITEM.SlotNumber\n"
+    		+ "	AND OWNS.ShelfNumber = ITEM.ShelfNumber\n"
+    		+ "JOIN CLOTHING ON CLOTHING.ClothingID = ITEM.CLOTHINGID\n"
     		+ "JOIN BRAND ON BRAND.BrandName = CLOTHING.BrandName\n"
-    		+ "JOIN SHIRT ON SHIRT.ClothingID = CLOTHING.ClothingID;";
+    		+ "JOIN SHIRT ON SHIRT.ClothingID = Clothing.ClothingID;;";
     
-    final static String SELECT_ALL_PANTS = "SELECT PANTS.ClothingID, OFirstName, OMiddleName, OLastName, Brand.BrandName, isLong, CLOTHING.Material\n"
-    		+ "FROM OWNER\n" 
-    		+ "JOIN OWNS ON OWNER.OID = OWNS.OID\n"
-    		+ "JOIN ITEM ON ITEM.SlotNumber = OWNS.SlotNumber AND ITEM.ShelfNumber = OWNS.ShelfNumber\n"
-    		+ "JOIN CLOTHING ON CLOTHING.ClothingID = ITEM.ClothingID\n"
+    final static String SELECT_ALL_PANTS_OWNED = "SELECT PANTS.ClothingID AS ID, PANTS.IsLong, OLastname AS Name, Clothing.Material, BRAND.BrandName AS Brand, ITEM.Size\n"
+    		+ "FROM OWNS\n"
+    		+ "JOIN OWNER ON OWNS.OID = OWNER.OID\n"
+    		+ "JOIN ITEM ON OWNS.SlotNumber = ITEM.SlotNumber\n"
+    		+ "	AND OWNS.ShelfNumber = ITEM.ShelfNumber\n"
+    		+ "JOIN CLOTHING ON CLOTHING.ClothingID = ITEM.CLOTHINGID\n"
     		+ "JOIN BRAND ON BRAND.BrandName = CLOTHING.BrandName\n"
-    		+ "JOIN PANTS ON PANTS.ClothingID = CLOTHING.ClothingID;";
+    		+ "JOIN PANTS ON PANTS.ClothingID = Clothing.ClothingID;";
     
-    final static String SELECT_ALL_OUTERWEAR ="SELECT OUTERWEAR.ClothingId OFirstName, OMiddleName, OLastName, Brand.BrandName, isJacket, CLOTHING.Material\r\n"
-    		+ "FROM OWNER \r\n"
-    		+ "JOIN OWNS ON OWNER.OID = OWNS.OID\r\n"
-    		+ "JOIN ITEM ON ITEM.SlotNumber = OWNS.SlotNumber AND ITEM.ShelfNumber = OWNS.ShelfNumber\r\n"
-    		+ "JOIN CLOTHING ON CLOTHING.ClothingID = ITEM.ClothingID\r\n"
-    		+ "JOIN BRAND ON BRAND.BrandName = CLOTHING.BrandName\r\n"
-    		+ "JOIN OUTERWEAR ON OUTERWEAR.ClothingID = CLOTHING.ClothingID;";
+    final static String SELECT_ALL_OUTERWEAR_OWNED ="SELECT OUTERWEAR.ClothingID, OUTERWEAR.isJacket, OLastname AS Name, Clothing.Material, BRAND.BrandName AS Brand, ITEM.Size\n"
+    		+ "FROM OWNS\n"
+    		+ "JOIN OWNER ON OWNS.OID = OWNER.OID\n"
+    		+ "JOIN ITEM ON OWNS.SlotNumber = ITEM.SlotNumber\n"
+    		+ "	AND OWNS.ShelfNumber = ITEM.ShelfNumber\n"
+    		+ "JOIN CLOTHING ON CLOTHING.ClothingID = ITEM.CLOTHINGID\n"
+    		+ "JOIN BRAND ON BRAND.BrandName = CLOTHING.BrandName\n"
+    		+ "JOIN OUTERWEAR ON OUTERWEAR.ClothingID = Clothing.ClothingID;";
     
     final static String SELECT_ALL_CLOTHING_BY_WORN = "SELECT OFirstName, OMiddleName, OLastName, CLOTHING.ClothingID, DateWorn\r\n"
     		+ "FROM OWNER \r\n"
@@ -55,7 +59,7 @@ public final class QueryStatements {
     		+ "JOIN ITEM ON ITEM.SlotNumber = OWNS.SlotNumber AND ITEM.ShelfNumber = OWNS.ShelfNumber\r\n"
     		+ "JOIN CLOTHING ON CLOTHING.ClothingID = ITEM.ClothingID;";
     
-    final static String SELECT_ITEM_WHERE_LOCATION = "SELECT ITEM.ClothingID, ITEM.ShelfNumber, ITEM.SlotNumber, OFirstName, OMiddleName, OLastName, DateWorn\r\n"
+    final static String SELECT_ITEM_WHERE_LOCATION = "SELECT ITEM.ShelfNumber, ITEM.SlotNumber, OFirstName, OMiddleName, OLastName, DateWorn\r\n"
     		+ "FROM OWNER \r\n"
     		+ "JOIN OWNS ON OWNS.OID = OWNER.OID\r\n"
     		+ "JOIN ITEM ON ITEM.SlotNumber = OWNS.SlotNumber AND ITEM.ShelfNumber = OWNS.ShelfNumber\r\n"
@@ -85,17 +89,17 @@ public final class QueryStatements {
     		+ " JOIN OWNS ON OWNS.SlotNumber = ITEM.SlotNumber AND OWNS.ShelfNumber = ITEM.ShelfNumber\n"
     		+ " JOIN OWNER ON OWNS.OID = OWNER.OID;";
     
-    final static String SELECT_ALL_CLOTHING_NOT_OWNED = "SELECT Clothing.ClothingID, BRAND.BrandName, I.ShelfNumber, I.SlotNumber\n"
-    		+ " FROM ITEM AS I\n"
-    		+ " JOIN CLOTHING ON I.ClothingID = CLOTHING.ClothingID\n"
-    		+ " JOIN BRAND ON BRAND.BrandName = CLOTHING.BrandName\n"
-    		+ " WHERE NOT EXISTS \n"
+    
+    final static String SELECT_ALL_CLOTHING_NOT_OWNED = "SELECT * FROM CLOTHING C\n"
+    		+ "WHERE NOT EXISTS \n"
+    		+ "\n"
     		+ "(\n"
-    		+ "	SELECT * \n"
-    		+ "    FROM OWNS \r\n"
-    		+ "    WHERE I.SlotNumber = OWNS.SlotNumber \n"
-    		+ "		AND I.ShelfNumber = OWNS.ShelfNumber\n"
-    		+ ");";
+    		+ "	SELECT * FROM OWNS\n"
+    		+ "    JOIN ITEM ON OWNS.SlotNumber = ITEM.SlotNumber\n"
+    		+ "		AND OWNS.ShelfNumber = ITEM.ShelfNumber\n"
+    		+ "	JOIN OWNER ON OWNER.OID = OWNS.OID\n"
+    		+ "    WHERE C.ClothingID = ITEM.ClothingID\n"
+    		+ ") ";
     
     final static String SELECT_BRAND_WHERE_CLOTHINGID = "SELECT B.BrandName, year FROM CLOTHING JOIN BRAND B ON CLOTHING.BrandName = B.BrandName\n"
     		+ "WHERE CLOTHINGID = ?"; 
@@ -127,6 +131,10 @@ public final class QueryStatements {
     		+ " JOIN OWNS ON OWNS.SlotNumber = ITEM.SlotNumber AND OWNS.ShelfNumber = ITEM.ShelfNumber\n"
     		+ " JOIN OWNER ON OWNS.OID = OWNER.OID;"
     		+ "	WHERE OWNS.OID =?";
+    
+    final static String SELECT_ALL_OWNS = "";
+    
+    final static String SELECT_ALL_COLOR = "SELECT ColorName FROM COLOR;";
     
     /**
      * Inserts
@@ -177,7 +185,7 @@ public final class QueryStatements {
     		+ "WHERE ClothingID=?;";
     
     final static String DELETE_COLOR = "DELETE FROM COLOR\n"
-    		+ "WHERE \"?\"=ColorName;";
+    		+ "WHERE ColorName =?;";
     
     final static String DELETE_HAS_COLOR = "DELETE FROM COLOR\n"
     		+ "WHERE \"?\"=ColorName AND ?=ShelfNumber AND ?=SlotNumber;";
@@ -195,15 +203,22 @@ public final class QueryStatements {
     		+ "WHERE ClothingId=?";
     
     // TODO implement these update statements
-    final static String UPDATE_OWNER = ""; 
+    final static String UPDATE_OWNER = "UPDATE OWNER SET OID = ?, OFirstName = ?, OMiddleName ="
+    		+ " ?, OLastName = ?, Size = ? WHERE OID = ?;"; 
     
-    final static String UPDATE_BRAND = ""; 
+    final static String UPDATE_BRAND = "UPDATE BRAND SET BrandName = ?, Year = ? WHERE BrandName = ?;"; 
    
     final static String UPDATE_ITEM = ""; 
     
-    final static String UPDATE_COLOR = ""; 
+    final static String UPDATE_COLOR = "UPDATE Color SET ColorName = ? WHERE ColorName = ?"; 
     
     final static String UPDATE_OWNS = ""; 
+    
+    final static String UPDATE_PANTS = "UPDATE PANTS SET CLOTHINGID=?, isLong=? WHERE CLOTHINGID=?"; 
+    
+    final static String UPDATE_SHIRT = "UPDATE SHIRT SET CLOTHINGID=?, TYPE=? WHERE CLOTHINGID=?";
+    
+    final static String UPDATE_OUTERWEAR = "UPDATE OUTERWEAR SET CLOTHINGID=?, isJacket=? WHERE CLOTHINGID=?";
     
     final static String UPDATE_CLOTHING = ""; 
     

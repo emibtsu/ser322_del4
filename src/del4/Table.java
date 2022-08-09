@@ -6,10 +6,20 @@ import java.util.ArrayList;
 
 public class Table {
 	
-	String tableName;
-	ArrayList<String> primaryKeys; 
+	private String tableName;
+	private ArrayList<String> primaryKeys; 
 	
-
+	/*
+	 * getters and setters
+	 */
+	public String getTableName() {
+		return tableName;
+	}
+	
+	public ArrayList<String> getPrimaryKeys(){
+		return primaryKeys;
+	}
+	
 	public Table(String tableName, Database database) {
 		this.tableName = tableName; 
 		
@@ -20,9 +30,7 @@ public class Table {
 		} 
 	}
 	
-	public ArrayList<String> getPrimaryKeys(){
-		return primaryKeys;
-	}
+
 	
 	/**
 	 * loads the primary objects from the 
@@ -43,12 +51,4 @@ public class Table {
 		return keys;
 	}
 
-	/**
-	 * prints out the primary keys 
-	 * mainly used for testing
-	 */
-	public void printPrimaryKeys() {
-		for(int i = 0; i < primaryKeys.size(); i++)
-			System.out.println(primaryKeys.get(i));
-	}
 }
