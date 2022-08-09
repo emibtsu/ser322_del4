@@ -17,23 +17,30 @@ import javax.swing.border.Border;
 public class JFormFrame extends JFrame{
 	
 	public JPanel mainPanel; 
-	public JButton goButton; 
+	public JButton commitDDLButton; 
 	
-	private String tableName; 
+	private String viewingTableName; 
 	
-	private ArrayList<JComponent> components; 
-	Database database; 
+	private ArrayList<JComponent> formJComponents; 
 	
-	public JFormFrame(ArrayList<String> args, String tableName) { 
+	private ArrayList<String> serializedPresetText;  
+	
+	final static String GO_TEXT = "Go"; 
+	
+	public JFormFrame(ArrayList<String> args, String tableName, ArrayList<String> serializedPresetText) {  
 
-		setUpFrame(); 
+		this.serializedPresetText = serializedPresetText; 
 		
-		components = new ArrayList<JComponent>();  
+		setupGUI(); 
 		
-		this.tableName = tableName; 
+		formJComponents = new ArrayList<JComponent>();  
+		
+		this.viewingTableName = tableName; 
 		
 		setUpAllComponents(args); 
+	
 	}
+	
 	
 	private void setUpAllComponents(ArrayList<String> args) {
 		
@@ -42,43 +49,74 @@ public class JFormFrame extends JFrame{
 			
 			// TODO - make this better, not at all dynamic 
 			// but fixes one off case 
-			if(this.tableName==QueryStatements.ITEM_TABLE && (i==1 || i==2))
+			if(this.viewingTableName==Const.ITEM_TABLE && (i==1 || i==2))
 				addCheckBox(args.get(i)); 
 			else
 				addLabelAndTextField(args.get(i)); 
 		}
 
 		
-		goButton = new JButton("go");
+		commitDDLButton = new JButton(GO_TEXT);
 		
-		addComponents(mainPanel, goButton); 
+		if(serializedPresetText!=null)
+			setupSerializedTextFieldPresets(); 
+		
+		addComponents(mainPanel, commitDDLButton); 
 		
 	}
 
+	
 	private void addCheckBox(String str) {
 		JCheckBox cb = CustomSwing.getCustomrCheckBox(str); 
-		components.add(cb);
+		formJComponents.add(cb);
 		
 		addComponents(mainPanel, cb); 
 	}
 
+	
 	private void addLabelAndTextField(String str) {
 		
 		JLabel label = new JLabel(str); 
 		JTextField tf = new JTextField(); 
 		
-		components.add(tf);
+		formJComponents.add(tf);
 	
 		addComponents(mainPanel, label, tf); 
+		
+	
 	}
 
-	private void setUpFrame() {
+	/**
+	 * note : there is no checking here for alignment of text components and 
+	 *        number of text fields. would need to implement a method to first 
+	 *        check all JComponents that are text fields, or come at this 
+	 *        with entirely different approach
+	 */
+	private void setupSerializedTextFieldPresets() {
+		
+		int text_count = 0;
+		
+		for(int i = 0; ((i < formJComponents.size()) && (text_count < serializedPresetText.size())); i++) {
+			
+			JComponent comp = formJComponents.get(i); 
+			
+			if(comp instanceof JTextField)
+				((JTextField) comp).setText(serializedPresetText.get(text_count++));
+		}	
+	
+	}
+	
+
+	/**
+	 * set up all of the GUI  components that appear 
+	 * on this form including buttons and text fields
+	 */
+	private void setupGUI() {
 		
 		mainPanel = new JPanel();
 		
 		mainPanel.setLayout(new BoxLayout(mainPanel, BoxLayout.PAGE_AXIS));
 		
-		this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		this.setLocationRelativeTo(null);  
 		
 		Border padding = BorderFactory.createEmptyBorder(10, 40, 10, 40);
@@ -91,7 +129,7 @@ public class JFormFrame extends JFrame{
 		
 	}
 	
-	// TODO put this in utility
+	
 	private void addComponents(JComponent sup, JComponent ...components) {
 		
 		for (JComponent component : components) {
@@ -99,12 +137,12 @@ public class JFormFrame extends JFrame{
 		 }
 	}
 
-	public ArrayList<Object> getTextFieldArgs() {
+	public ArrayList<Object> getInputArgs() {
 		
 		ArrayList<Object> args = new ArrayList<Object>(); 
-		
-		for(int i = 0; i < components.size(); i++)
-			args.add(parseArgsFromJComponent(components.get(i))); 
+
+		for(int i = 0; i < formJComponents.size(); i++)
+			args.add(parseArgsFromJComponent(formJComponents.get(i))); 
 		
 		return args;
 	}

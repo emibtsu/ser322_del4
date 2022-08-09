@@ -14,6 +14,7 @@ select item by location, select all clothing owned, select all unowned clothing,
 The update, insert, and delete can change owners, brands, clothing, items, pants, shirts, outerwear, owns relationship, has color relationship
 
 ## Steps to create DB
+Must name schema closet (parts of the program that use meta data depend on this)
 run closet_5_create.sql in workbench
 run closet_5_insert.sql in workbench
 
@@ -39,20 +40,28 @@ Emily: Create drive for team to work in, make initial draft with all the require
 
 Paul:
 
+Paul: Participating in brainstorming for database ideas.
+
 ### Deliverable 2
 Emily: Make doc for team to collab on diagram, draft initial ER diagram, draft inital entities and relationships, communicate with team, turn in final deliverable
 
 Paul:
+
+Paul: Contributed to initial ER diagram. 
 
 ### Deliverable 3
 Emily: Make video and readme, help test create statements and add referential triggers, make insert data, draft inital select statements, commnunicate with team on deadlines and requirements, turn in final deliverable
 
 Paul:
 
+Paul: Created outline and made contributionis to create, insert, and select statements. Updated ER diagram per gradeer response. Constributed to schema relation daigram.
+
 ### Deliverable 4
 Emily: Help with adding labels to GUI (Paul did most GUI btw), add all select statements from previous del and add corresponding methods, communicate with team, spearhead readme edits, create github repo to work in, fill out readme code/test application on windows, help create script for video, film video
 
 Paul:
+
+Paul: Contributed to program including GUi, basic, logic, and testing.
 
 ## Updates to ER diagram
 - embedded location into item since entity attributes only consisted of item key
