@@ -1,5 +1,6 @@
 package del4;
 import java.sql.Connection;
+import java.sql.DatabaseMetaData;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -9,7 +10,13 @@ import java.sql.Statement;
 import java.util.ArrayList;
 
 public class Database{
-
+	
+	final static String CATALOG_NAME = "closet"; 
+	
+	public enum ActionType{
+		insert, delete, update, search
+	}
+	
 	private Connection connection; 
 	
 	public Database(String uri, String username, String password, String driver_cname) {
@@ -21,180 +28,7 @@ public class Database{
 		return this.connection; 
 	}
    
-    // queries
-	
-	final static String SELECT_OWNERS = "SELECT*\n"
-			+ "FROM OWNER;";
-	final static String SELECT_SHIRTS_BY_OWNER_BRAND = "SELECT ITEM.SlotNumber, ITEM.ShelfNumber, OFirstName, OMiddleName, OLastName, Brand.BrandName, Type, CLOTHING.Material\n"
-		
-			+ "FROM OWNER \n"
-			+ "JOIN OWNS ON OWNER.OID = OWNS.OID\n"
-			+ "JOIN ITEM ON ITEM.SlotNumber = OWNS.SlotNumber AND ITEM.ShelfNumber = OWNS.ShelfNumber\n"
-			+ "JOIN CLOTHING ON CLOTHING.ClothingID = ITEM.ClothingID\n"
-			+ "JOIN BRAND ON BRAND.BrandName = CLOTHING.BrandName\n"
-			+ "JOIN SHIRT ON SHIRT.ClothingID = CLOTHING.ClothingID;";
-	
-	    
-    final public static String SELECT_ALL_SHIRTS ="SELECT OFirstName, OMiddleName, OLastName, Brand.BrandName, Type, CLOTHING.Material\n"
-    		+ "FROM OWNER \n"
-    		+ "JOIN OWNS ON OWNER.OID = OWNS.OID\n"
-    		+ "JOIN ITEM ON ITEM.SlotNumber = OWNS.SlotNumber AND ITEM.ShelfNumber = OWNS.ShelfNumber\n"
-    		+ "JOIN CLOTHING ON CLOTHING.ClothingID = ITEM.ClothingID\n"
-    		+ "JOIN BRAND ON BRAND.BrandName = CLOTHING.BrandName\n"
-    		+ "JOIN SHIRT ON SHIRT.ClothingID = CLOTHING.ClothingID;";
-    
-    final static String SELECT_ALL_PANTS = "SELECT OFirstName, OMiddleName, OLastName, Brand.BrandName, isLong, CLOTHING.Material\n"
-    		+ "FROM OWNER\n" 
-    		+ "JOIN OWNS ON OWNER.OID = OWNS.OID\n"
-    		+ "JOIN ITEM ON ITEM.SlotNumber = OWNS.SlotNumber AND ITEM.ShelfNumber = OWNS.ShelfNumber\n"
-    		+ "JOIN CLOTHING ON CLOTHING.ClothingID = ITEM.ClothingID\n"
-    		+ "JOIN BRAND ON BRAND.BrandName = CLOTHING.BrandName\n"
-    		+ "JOIN PANTS ON PANTS.ClothingID = CLOTHING.ClothingID;";
-    
-    final static String SELECT_ALL_OUTERWEAR ="SELECT OFirstName, OMiddleName, OLastName, Brand.BrandName, isJacket, CLOTHING.Material\r\n"
-    		+ "FROM OWNER \r\n"
-    		+ "JOIN OWNS ON OWNER.OID = OWNS.OID\r\n"
-    		+ "JOIN ITEM ON ITEM.SlotNumber = OWNS.SlotNumber AND ITEM.ShelfNumber = OWNS.ShelfNumber\r\n"
-    		+ "JOIN CLOTHING ON CLOTHING.ClothingID = ITEM.ClothingID\r\n"
-    		+ "JOIN BRAND ON BRAND.BrandName = CLOTHING.BrandName\r\n"
-    		+ "JOIN OUTERWEAR ON OUTERWEAR.ClothingID = CLOTHING.ClothingID;";
-    
-    final static String SELECT_ALL_CLOTHING_BY_WORN = "SELECT OFirstName, OMiddleName, OLastName, CLOTHING.ClothingID, DateWorn\r\n"
-    		+ "FROM OWNER \r\n"
-    		+ "JOIN OWNS ON OWNS.OID = OWNER.OID\r\n"
-    		+ "JOIN ITEM ON ITEM.SlotNumber = OWNS.SlotNumber AND ITEM.ShelfNumber = OWNS.ShelfNumber\r\n"
-    		+ "JOIN CLOTHING ON CLOTHING.ClothingID = ITEM.ClothingID;";
-    
-    final static String SELECT_ITEM_WHERE_LOCATION = "SELECT OFirstName, OMiddleName, OLastName, CLOTHING.ClothingID, DateWorn\r\n"
-    		+ "FROM OWNER \r\n"
-    		+ "JOIN OWNS ON OWNS.OID = OWNER.OID\r\n"
-    		+ "JOIN ITEM ON ITEM.SlotNumber = OWNS.SlotNumber AND ITEM.ShelfNumber = OWNS.ShelfNumber\r\n"
-    		+ "JOIN CLOTHING ON CLOTHING.ClothingID = ITEM.ClothingID\r\n"
-    		+ "WHERE ITEM.ShelfNumber = ? AND ITEM.SlotNumber = ?;";
-    
-    final static String SELECT_ALL_CLOTHING_OWNED = "SELECT OFirstName, OMiddleName, OLastName, S.ClothingID, ITEM.ShelfNumber, ITEM.SlotNumber\n"
-    		+ "FROM\n"
-    		+ "(( \n"
-    		+ "SELECT CLOTHING.ClothingID\n"
-    		+ "FROM CLOTHING\n"
-    		+ " JOIN SHIRT ON SHIRT.ClothingID = CLOTHING.ClothingID)\n"
-    		+ " UNION \n"
-    		+ " (\n"
-    		+ " SELECT CLOTHING.ClothingID\n"
-    		+ "FROM CLOTHING\n"
-    		+ " JOIN PANTS ON PANTS.ClothingID = CLOTHING.ClothingID\n"
-    		+ " )\n"
-    		+ " UNION\n"
-    		+ "  (\n"
-    		+ " SELECT CLOTHING.ClothingID\n"
-    		+ "FROM CLOTHING\n"
-    		+ " JOIN OUTERWEAR ON OUTERWEAR.ClothingID = CLOTHING.ClothingID\n"
-    		+ " ) ) AS S\n"
-    		+ " \r\n"
-    		+ " JOIN ITEM ON S.ClothingID = ITEM.ClothingID\n"
-    		+ " JOIN OWNS ON OWNS.SlotNumber = ITEM.SlotNumber AND OWNS.ShelfNumber = ITEM.ShelfNumber\n"
-    		+ " JOIN OWNER ON OWNS.OID = OWNER.OID;";
-    
-    final static String SELECT_ALL_CLOTHING_NOT_OWNED = "SELECT Clothing.ClothingID, BRAND.BrandName, I.ShelfNumber, I.SlotNumber\n"
-    		+ " FROM ITEM AS I\n"
-    		+ " JOIN CLOTHING ON I.ClothingID = CLOTHING.ClothingID\n"
-    		+ " JOIN BRAND ON BRAND.BrandName = CLOTHING.BrandName\n"
-    		+ " WHERE NOT EXISTS \n"
-    		+ "(\n"
-    		+ "	SELECT * \n"
-    		+ "    FROM OWNS \r\n"
-    		+ "    WHERE I.SlotNumber = OWNS.SlotNumber \n"
-    		+ "		AND I.ShelfNumber = OWNS.ShelfNumber\n"
-    		+ ");";
-    
-    final static String SELECT_BRAND_WHERE_CLOTHINGID = "SELECT B.BrandName, year FROM CLOTHING JOIN BRAND B ON CLOTHING.BrandName = B.BrandName\n"
-    		+ "WHERE CLOTHINGID = ?"; 
-    
-    final static String SELECT_CLOTHING_WHERE_CLOTHINGID = "SELECT ClothingId, Material, BrandName\n"
-    		+ "FROM CLOTHING \n"
-    		+ "WHERE ClothingId = ?; "; 
-    
-    final static String SELECT_ALL_CLOTHING_BY_OWNED = "SELECT OFirstName, OMiddleName, OLastName, S.ClothingID, ITEM.ShelfNumber, ITEM.SlotNumber\n"
-    		+ "FROM\n"
-    		+ "(( \n"
-    		+ "SELECT CLOTHING.ClothingID\n"
-    		+ "FROM CLOTHING\n"
-    		+ " JOIN SHIRT ON SHIRT.ClothingID = CLOTHING.ClothingID)\n"
-    		+ " UNION \n"
-    		+ " (\n"
-    		+ " SELECT CLOTHING.ClothingID\n"
-    		+ "FROM CLOTHING\n"
-    		+ " JOIN PANTS ON PANTS.ClothingID = CLOTHING.ClothingID\n"
-    		+ " )\n"
-    		+ " UNION\n"
-    		+ "  (\n"
-    		+ " SELECT CLOTHING.ClothingID\n"
-    		+ "FROM CLOTHING\n"
-    		+ " JOIN OUTERWEAR ON OUTERWEAR.ClothingID = CLOTHING.ClothingID\n"
-    		+ " ) ) AS S\n"
-    		+ " \r\n"
-    		+ " JOIN ITEM ON S.ClothingID = ITEM.ClothingID\n"
-    		+ " JOIN OWNS ON OWNS.SlotNumber = ITEM.SlotNumber AND OWNS.ShelfNumber = ITEM.ShelfNumber\n"
-    		+ " JOIN OWNER ON OWNS.OID = OWNER.OID;"
-    		+ "	WHERE OWNS.OID =?";
-    
-    final static String INSERT_OWNER = "INSERT INTO OWNER \n"
-    		+ "VALUES (?, \"?\", \"?\", \"?\",\"?\");";
-    
-    final static String INSERT_BRAND = "INSERT INTO BRAND\r\n"
-    		+ "VALUES(\"?\", ?);";
-    
-    final static String INSERT_CLOTHING = "INSERT INTO CLOTHING\n"
-    		+ "VALUES(?, \"?\", \"?\");";
-    
-    final static String INSERT_ITEM = "INSERT INTO ITEM\n"
-    		+ "VALUES(\"?\", ?, ?, ?, ?, ?);";
-    
-    //need to make method for
-    final static String INSERT_COLOR = "INSERT INTO COLOR\n"
-    		+ "VALUES(\"?\");";
-    
-    final static String INSERT_PANTS = "INSERT INTO PANTS\n"
-    		+ "VALUES(?, ?);";
-    
-    final static String INSERT_SHIRT = "INSERT INTO SHIRT\n"
-    		+ "VAlUES (?, \"?\");";
-    
-    final static String INSERT_OUTERWEAR = "INSERT INTO OUTERWEAR\n"
-    		+ "VALUES(?, ?);";
-    
-    final static String INSERT_OWNS = "INSERT INTO OWNS\n"
-    		+ "VALUES(?, '?', '?', ?, 3?;";
-    
-    final static String INSERT_HAS_COLOR = "INSERT INTO HAS_COLOR\n"
-    		+ "VAlUES(\"?\", ?, ?);";
-    
-    final static String DELETE_OWNER = "DELETE FROM OWNER\n"
-    		+ "WHERE ?= OID AND \"?\"=OFirstName AND \"?\"=OMiddleName AND \"?\"=OMiddleName AND \"?\" = OLastName AND \"?\"=Size;";
-    
-    final static String DELETE_OWNS = "DELETE FROM OWNS\n"
-    		+ "WHERE ?=OID AND '?'=DateWorn AND '?'=DateAquired AND ?=ShelfNumber AND ?=SlotNumber;";
-    
-    final static String DELETE_CLOTHING = "DELETE FROM CLOTHING\n"
-    		+ "WHERE ?=ClothingID AND \"?\"=Material AND \"?\"=BrandName;";
-    
-    final static String DELETE_COLOR = "DELETE FROM COLOR\n"
-    		+ "WHERE \"?\"=ColorName;";
-    
-    final static String DELETE_HAS_COLOR = "DELETE FROM COLOR\n"
-    		+ "WHERE \"?\"=ColorName AND ?=ShelfNumber AND ?=SlotNumber;";
-    
-    final static String DELETE_ITEM = "DELETE FROM ITEM\n"
-    		+ "WHERE \"?\"=Size AND ? = isClean AND ?=isDamaged AND ?=ShelfNumber AND ?=SlotNumber AND ?=ClothingID;";
-    
-    final static String DELETE_OUTERWEAR = "DELETE FROM OUTERWEAR\n"
-    		+ "WHERE ?=ClothingID AND ?=isJacket;";
-    
-    final static String DELETE_SHIRT = "DELETE FROM SHIRT\n"
-    		+ "WHERE ?=ClothingID AND \"?\"=Type;";
-    
-    final static String DELETE_PANTS = "DELETE FROM OUTERPANTS\n"
-    		+ "WHERE ?=ClothingID AND ?=isLong;";
+
     
     /**
      * runs a query based on in file constant
@@ -205,6 +39,8 @@ public class Database{
     public PreparedStatement runQuery(String query, ArrayList<Object> args) throws SQLException{
     	
     	PreparedStatement s = null;  
+    	
+    	System.out.println("TEST"); 
 	
 		s = connection.prepareStatement(query); 
 		
@@ -216,6 +52,13 @@ public class Database{
     }
     
    
+    /**
+     * given a list of any size args, set the statment up with the appropriate 
+     * ordered values
+     * @param args
+     * @param s
+     * @throws SQLException
+     */
     private void setPreparedStatementArgs(ArrayList<Object> args, PreparedStatement s) throws SQLException {
 		for(int i = 0; i < args.size(); i++)
 			s.setString(i+1, String.valueOf(args.get(i))); // Indexes starting @ 1 not 0 
@@ -259,5 +102,164 @@ public class Database{
     	}
 
     }
+    
+    /**
+     * returns the appropriate ddl statement for the tablename and action type
+     * @param tableName
+     * @param actionType
+     * @return
+     */
+    public String getDDLStatementFor(String tableName, ActionType actionType) {
+    	
+    	if(actionType==ActionType.update)
+    		return determineDDLForUpdate(tableName); 
+    	
+    	if(actionType==ActionType.insert)
+    		return determineDDLForInsert(tableName); 
+    	return null; 
+    	
+    }
+    
+    /**
+     * Get the referencing columns i.e., primary keys for given queries
+     * note that SQL indexes starting at 1 not 0
+     * @param query
+     * @return
+     */
+    public ArrayList<Object> getSignificantColumnsFor(String query) {
+    	
+    	ArrayList<Object> columns = new ArrayList<Object>(); 
+    	
+    	switch(query) {
+    	case QueryStatements.SELECT_OWNERS:
+    		columns.add(1); 
+    		break; 
+    	}
+    	
+    	return columns; 
+    }
+    
+    /**
+     * given a table name, retrieve the appropriate insert SQL statement 
+     * @param tableName
+     * @return query string 
+     */
+    private String determineDDLForInsert(String tableName) {
+    	String query = ""; 
+    	
+    	switch(tableName) {
+    	case QueryStatements.OWNER_TABLE:
+    		query = QueryStatements.INSERT_OWNER; 
+    		break;
+    	case QueryStatements.BRAND_TABLE: 
+    		query = QueryStatements.INSERT_BRAND; 
+    		break;
+    	case QueryStatements.CLOTHING_TABLE: 
+    		query = QueryStatements.INSERT_CLOTHING; 
+    		break;
+    	case QueryStatements.COLOR_TABLE: 
+    		query = QueryStatements.INSERT_COLOR; 
+    		break;
+    	case QueryStatements.ITEM_TABLE: 
+    		query = QueryStatements.INSERT_ITEM;
+    		break;
+    	}
+    	
+    	return query; 
+    }
+    
+    
+    /**
+     * given a table name retrieve the appropriate update SQL statement
+     * @param tableName
+     * @return query string 
+     */
+    private String determineDDLForUpdate(String tableName) {
+    	String query = ""; 
+    	
+    	switch(tableName) {
+    	case QueryStatements.OWNER_TABLE:
+    		query = QueryStatements.UPDATE_OWNER; 
+    		break;
+    	case QueryStatements.BRAND_TABLE: 
+    		query = QueryStatements.UPDATE_BRAND; 
+    		break;
+    	case QueryStatements.CLOTHING_TABLE: 
+    		query = QueryStatements.UPDATE_CLOTHING; 
+    		break;
+    	case QueryStatements.COLOR_TABLE: 
+    		query = QueryStatements.UPDATE_COLOR; 
+    	case QueryStatements.ITEM_TABLE: 
+    		query = QueryStatements.UPDATE_ITEM;
+    	}
+    	
+    	return query; 
+    }
+    
+    /**
+     * given a set of tables get the delete query associated with them
+     * @param ddl_involved_tables
+     * @return
+     */
+
+	public static String getDDLDeleteQueryFor(String queryString) {
+		
+		String ddlString=""; 
+		switch(queryString) {
+    	case QueryStatements.SELECT_OWNERS:
+    		ddlString = QueryStatements.DELETE_OWNER;
+    		break;
+    	case QueryStatements.SELECT_ALL_PANTS: 
+    		ddlString = QueryStatements.DELETE_PANTS; 
+    		break;
+      	case QueryStatements.SELECT_ALL_SHIRTS: 
+    		ddlString = QueryStatements.DELETE_SHIRT; 
+    		break;
+      	case QueryStatements.SELECT_ALL_OUTERWEAR: 
+    		ddlString = QueryStatements.DELETE_OUTERWEAR; 
+    		break;
+    	case QueryStatements.SELECT_ALL_CLOTHING_BY_WORN: 
+    		ddlString = QueryStatements.DELETE_CLOTHING;
+    		break;
+    	case QueryStatements.SELECT_ITEM_WHERE_LOCATION: 
+    		ddlString = QueryStatements.DELETE_ITEM;
+    		break;
+    	case QueryStatements.SELECT_ALL_CLOTHING_OWNED: 
+    		ddlString = QueryStatements.DELETE_CLOTHING;
+    		break;
+    	case QueryStatements.SELECT_BRAND_WHERE_CLOTHINGID: 
+    		ddlString = QueryStatements.DELETE_BRAND;
+    		break;
+    	case QueryStatements.SELECT_CLOTHING_WHERE_CLOTHINGID: 
+    		ddlString = QueryStatements.DELETE_CLOTHING;
+    		break;
+    	case QueryStatements.SELECT_ALL_CLOTHING_NOT_OWNED: 
+    		ddlString = QueryStatements.DELETE_CLOTHING;
+    		break;
+    	}
+		
+		return ddlString;
+	}
+
+
         
+    
+	public ResultSet getPrimaryKeysFor(String tableName) {
+		DatabaseMetaData metaData; 
+		try {
+			metaData = this.getConnection().getMetaData();
+
+			ResultSet rs = metaData.getPrimaryKeys(CATALOG_NAME, null, tableName); 
+
+			return rs;
+			
+
+		} catch (SQLException e) {
+			e.printStackTrace();
+		} 
+	
+		return null; 
+	}
+
+
 }

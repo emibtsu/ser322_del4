@@ -44,8 +44,7 @@ public class JDataButton extends JButton{
 	 * @throws SQLException
 	 */
 	public JDataButton(String text,  Object specialData) {
-		
-
+	
 		this.data = new ArrayList<Object>(); 
 		data.add(specialData); 
 		

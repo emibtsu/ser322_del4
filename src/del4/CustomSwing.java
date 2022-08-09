@@ -25,4 +25,10 @@ public class CustomSwing{
 		return label;  
     }
     
+    public static JCheckBox getCustomrCheckBox(String text) {
+    	JCheckBox checkBox = new JCheckBox(text); 
+    	
+    	return checkBox; 
+    }
+    
 }
